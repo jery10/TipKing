@@ -1,4 +1,5 @@
 import os
+import traceback
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from dotenv import load_dotenv
 from db import (submit_tip, get_tips_for_match, has_tipped, get_my_tips,
@@ -9,6 +10,11 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "tipking-secret-2024")
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    traceback.print_exc()
+    return f"<pre>500 Error:\n{traceback.format_exc()}</pre>", 500
 
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "tipking2024")
 
