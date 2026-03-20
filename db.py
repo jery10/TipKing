@@ -1,6 +1,5 @@
 import os
 from supabase import create_client, Client
-import pandas as pd
 
 _sb: Client = None
 
@@ -71,15 +70,20 @@ def get_leaderboard():
             .not_.is_("is_correct", "null").execute()
         if not res.data:
             return []
-        df = pd.DataFrame(res.data)
-        lb = df.groupby("handle").agg(
-            tips=("id", "count"),
-            correct=("is_correct", "sum"),
-        ).reset_index()
-        lb = lb[lb["tips"] >= 3]
-        lb["accuracy"] = (lb["correct"] / lb["tips"] * 100).round(1)
-        lb = lb.sort_values(["accuracy", "correct"], ascending=False).reset_index(drop=True)
-        return lb.to_dict("records")
+        # Aggregate by handle
+        agg = {}
+        for t in res.data:
+            h = t["handle"]
+            if h not in agg:
+                agg[h] = {"handle": h, "tips": 0, "correct": 0}
+            agg[h]["tips"] += 1
+            if t["is_correct"]:
+                agg[h]["correct"] += 1
+        lb = [v for v in agg.values() if v["tips"] >= 3]
+        for row in lb:
+            row["accuracy"] = round(row["correct"] / row["tips"] * 100, 1)
+        lb.sort(key=lambda x: (-x["accuracy"], -x["correct"]))
+        return lb
     except Exception:
         return []
 
@@ -108,13 +112,11 @@ def get_stats():
         all_tips = get_db().table("tips").select("*").execute().data or []
         if not all_tips:
             return {"total": 0, "tipsters": 0, "settled": 0, "correct": 0}
-        df = pd.DataFrame(all_tips)
-        settled = df[df["is_correct"].notna()]
         return {
-            "total": len(df),
-            "tipsters": df["handle"].nunique(),
-            "settled": len(settled),
-            "correct": int(settled["is_correct"].sum()) if not settled.empty else 0,
+            "total": len(all_tips),
+            "tipsters": len(set(t["handle"] for t in all_tips)),
+            "settled": sum(1 for t in all_tips if t["is_correct"] is not None),
+            "correct": sum(1 for t in all_tips if t["is_correct"] is True),
         }
     except Exception:
         return {"total": 0, "tipsters": 0, "settled": 0, "correct": 0}

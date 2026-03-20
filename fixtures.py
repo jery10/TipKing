@@ -1,7 +1,6 @@
 import os
 import requests
-import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 COMPETITIONS = {
     "PL":  {"name": "Premier League",   "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "country": "England"},
@@ -32,7 +31,7 @@ def get_upcoming(days=14):
             for m in resp.json().get("matches", []):
                 if m.get("status") in ("FINISHED","IN_PLAY","PAUSED","CANCELLED","POSTPONED"):
                     continue
-                dt = pd.to_datetime(m["utcDate"]).tz_localize(None)
+                dt = datetime.fromisoformat(m["utcDate"].replace("Z", "+00:00")).replace(tzinfo=None)
                 all_matches.append({
                     "match_id":   m["id"],
                     "competition": comp_code,
@@ -40,7 +39,7 @@ def get_upcoming(days=14):
                     "comp_flag":  COMPETITIONS[comp_code]["flag"],
                     "date":       dt,
                     "date_str":   dt.strftime("%a %d %b · %H:%M"),
-                    "date_only":  dt.date(),
+                    "date_only":  str(dt.date()),
                     "home_team":  m["homeTeam"]["name"],
                     "away_team":  m["awayTeam"]["name"],
                 })
