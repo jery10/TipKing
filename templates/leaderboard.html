@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard — TipKing{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <div class="page-title">🏆 Leaderboard</div>
+    <div class="page-sub">Top tipsters ranked by accuracy. Minimum 3 settled tips to qualify.</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar" style="margin-bottom:32px">
+    <div class="stat-item">
+      <span class="stat-num">{{ stats.total }}</span>
+      <div class="stat-label">Total Tips</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ stats.tipsters }}</span>
+      <div class="stat-label">Tipsters</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ stats.settled }}</span>
+      <div class="stat-label">Settled</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ stats.correct }}</span>
+      <div class="stat-label">Correct</div>
+    </div>
+  </div>
+
+  {% if not leaderboard %}
+  <div style="text-align:center;padding:60px;color:var(--muted)">
+    <div style="font-size:3rem;margin-bottom:16px">🏆</div>
+    <div style="font-size:1.1rem;font-weight:600">No settled tips yet</div>
+    <div style="margin-top:8px">Check back after matches are played</div>
+    <a href="/fixtures" class="btn btn-gold" style="margin-top:20px;display:inline-flex">Submit a Tip →</a>
+  </div>
+  {% else %}
+  <div class="card">
+    {% for row in leaderboard %}
+    <div class="lb-row">
+      <div class="lb-rank {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
+        {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
+      </div>
+      <div>
+        <div class="lb-handle">@{{ row.handle }}</div>
+        <div style="font-size:0.75rem;color:var(--muted)">{{ row.correct }}/{{ row.tips }} correct</div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="lb-accuracy">{{ row.accuracy }}%</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div style="text-align:center;margin-top:32px">
+    <a href="/fixtures" class="btn btn-gold">Submit a Tip 👑</a>
+  </div>
+</div>
+{% endblock %}

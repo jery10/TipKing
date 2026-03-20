@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Fixtures — TipKing{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <div class="page-title">📅 Fixtures</div>
+    <div class="page-sub">Pick a match and submit your tip before kickoff</div>
+  </div>
+
+  <!-- Competition filter -->
+  <div class="tabs">
+    <a href="/fixtures?comp=all" class="tab-btn {% if comp_filter == 'all' %}active{% endif %}">All</a>
+    {% for code, info in competitions.items() %}
+    <a href="/fixtures?comp={{ code }}" class="tab-btn {% if comp_filter == code %}active{% endif %}">
+      {{ info.flag }} {{ info.name }}
+    </a>
+    {% endfor %}
+  </div>
+
+  {% if not grouped %}
+  <div style="text-align:center;padding:60px 20px;color:var(--muted)">
+    <div style="font-size:3rem;margin-bottom:16px">📅</div>
+    <div style="font-size:1.1rem;font-weight:600">No upcoming fixtures found</div>
+    <div style="margin-top:8px">Check back soon or try a different competition</div>
+  </div>
+  {% endif %}
+
+  {% for date_key, group in grouped.items() %}
+  <div class="date-header">{{ group.label }}</div>
+  {% for f in group.matches %}
+  <a href="/match/{{ f.home_team|urlencode }}/vs/{{ f.away_team|urlencode }}" class="match-card">
+    <div class="match-comp">{{ f.comp_flag }} {{ f.comp_name }}</div>
+    <div class="match-teams">
+      <div class="team-name home">{{ f.home_team }}</div>
+      <div class="match-vs">⏰ {{ f.date.strftime('%H:%M') }} UTC</div>
+      <div class="team-name away">{{ f.away_team }}</div>
+    </div>
+    {% if f.tip_count > 0 %}
+    <div class="consensus">
+      <div class="con-h" style="width:{{ f.consensus.H }}%"></div>
+      <div class="con-d" style="width:{{ f.consensus.D }}%"></div>
+      <div class="con-a" style="width:{{ f.consensus.A }}%"></div>
+    </div>
+    <div class="consensus-labels">
+      <span class="con-label-h">Home {{ f.consensus.H }}%</span>
+      <span class="con-label-d">Draw {{ f.consensus.D }}%</span>
+      <span class="con-label-a">Away {{ f.consensus.A }}%</span>
+    </div>
+    {% endif %}
+    <div class="match-meta" style="margin-top:8px">
+      <span>{{ f.tip_count }} tip{{ 's' if f.tip_count != 1 else '' }}</span>
+      {% if f.already_tipped %}
+        <span style="color:var(--green);font-weight:600">✅ Tipped</span>
+      {% else %}
+        <span style="color:var(--gold);font-weight:600">Tip now →</span>
+      {% endif %}
+    </div>
+  </a>
+  {% endfor %}
+  {% endfor %}
+</div>
+{% endblock %}

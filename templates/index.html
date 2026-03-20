@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}TipKing — Submit Tips. Win Rewards.{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-tag">🔥 Free to join · No risk</div>
+    <h1>Your Football Knowledge<br>Should <span class="gold">Pay You</span></h1>
+    <p>Submit your match predictions for free. The tipsters who get it right get rewarded. No bets, no deposits — just your football brain.</p>
+    <div class="hero-cta">
+      <a href="/fixtures" class="btn btn-gold btn-hero">Submit a Tip 👑</a>
+      <a href="/leaderboard" class="btn btn-outline btn-hero">View Leaderboard</a>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+
+  <!-- Stats bar -->
+  <div class="stats-bar fade-in">
+    <div class="stat-item">
+      <span class="stat-num">{{ stats.total }}</span>
+      <div class="stat-label">Tips Submitted</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ stats.tipsters }}</span>
+      <div class="stat-label">Tipsters</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ stats.settled }}</span>
+      <div class="stat-label">Settled</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ stats.correct }}</span>
+      <div class="stat-label">Correct Tips</div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <section class="section">
+    <div class="section-title">How TipKing Works</div>
+    <div class="section-sub">Three simple steps to getting rewarded for your football knowledge</div>
+    <div class="steps">
+      <div class="step-card fade-in">
+        <div class="step-num">01</div>
+        <div class="step-icon">📅</div>
+        <div class="step-title">Pick a Match</div>
+        <div class="step-desc">Browse upcoming fixtures across Premier League, La Liga, Champions League and more.</div>
+      </div>
+      <div class="step-card fade-in">
+        <div class="step-num">02</div>
+        <div class="step-icon">🧠</div>
+        <div class="step-title">Submit Your Tip</div>
+        <div class="step-desc">Predict the result and score. Add your reasoning — injuries, form, anything you know that the stats don't show.</div>
+      </div>
+      <div class="step-card fade-in">
+        <div class="step-num">03</div>
+        <div class="step-icon">💰</div>
+        <div class="step-title">Win Rewards</div>
+        <div class="step-desc">Correct tipsters get rewarded after the match. The more confident and accurate you are, the more recognition you get.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Upcoming fixtures preview -->
+  {% if fixtures %}
+  <section class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div class="section-title">Upcoming Matches</div>
+        <div class="section-sub">Tip these matches before kickoff</div>
+      </div>
+      <a href="/fixtures" class="btn btn-outline btn-sm">View All →</a>
+    </div>
+
+    {% for f in fixtures %}
+    <a href="/match/{{ f.home_team|urlencode }}/vs/{{ f.away_team|urlencode }}" class="match-card">
+      <div class="match-comp">{{ f.comp_flag }} {{ f.comp_name }}</div>
+      <div class="match-teams">
+        <div class="team-name home">{{ f.home_team }}</div>
+        <div class="match-vs">{{ f.date_str }}</div>
+        <div class="team-name away">{{ f.away_team }}</div>
+      </div>
+      {% if f.tip_count > 0 %}
+      <div class="consensus">
+        <div class="con-h" style="width:{{ f.consensus.H }}%"></div>
+        <div class="con-d" style="width:{{ f.consensus.D }}%"></div>
+        <div class="con-a" style="width:{{ f.consensus.A }}%"></div>
+      </div>
+      <div class="consensus-labels">
+        <span class="con-label-h">Home {{ f.consensus.H }}%</span>
+        <span class="con-label-d">Draw {{ f.consensus.D }}%</span>
+        <span class="con-label-a">Away {{ f.consensus.A }}%</span>
+      </div>
+      {% endif %}
+      <div class="match-meta" style="margin-top:8px">
+        <span>{{ f.tip_count }} tip{{ 's' if f.tip_count != 1 else '' }}</span>
+        <span style="color:var(--gold);font-weight:600">Tip now →</span>
+      </div>
+    </a>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  <!-- Leaderboard preview -->
+  {% if leaderboard %}
+  <section class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div class="section-title">🏆 Top Tipsters</div>
+        <div class="section-sub">Ranked by accuracy. Minimum 3 settled tips.</div>
+      </div>
+      <a href="/leaderboard" class="btn btn-outline btn-sm">Full Table →</a>
+    </div>
+    <div class="card">
+      {% for row in leaderboard %}
+      <div class="lb-row">
+        <div class="lb-rank {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
+          {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
+        </div>
+        <div class="lb-handle">@{{ row.handle }}</div>
+        <div class="lb-stats">
+          <span>{{ row.correct }}/{{ row.tips }} correct</span>
+        </div>
+        <div class="lb-accuracy">{{ row.accuracy }}%</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Recent winners -->
+  {% if winners %}
+  <section class="section">
+    <div class="section-title">🎉 Recent Winners</div>
+    <div class="section-sub">These tipsters called it right</div>
+    <div class="winners-grid">
+      {% for w in winners %}
+      <div class="winner-card fade-in">
+        <div style="font-size:1.5rem">🏆</div>
+        <div class="winner-handle">@{{ w.handle }}</div>
+        <div class="winner-match">{{ w.home_team }} vs {{ w.away_team }}</div>
+        <div class="winner-pick">
+          <span class="pill pill-{{ w.result_pick }}">
+            {% if w.result_pick == 'H' %}Home Win{% elif w.result_pick == 'D' %}Draw{% else %}Away Win{% endif %}
+          </span>
+        </div>
+        {% if w.actual_home is not none %}
+        <div style="font-size:0.78rem;color:var(--muted);margin-top:6px">
+          {{ w.actual_home }}–{{ w.actual_away }}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+</div>
+{% endblock %}

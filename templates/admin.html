@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Admin — TipKing{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <div class="page-title">🔐 Admin Panel</div>
+  </div>
+
+  {% if not authed %}
+  <div style="max-width:360px;margin:0 auto">
+    <div class="card">
+      <div class="card-body">
+        {% if error %}
+        <div style="color:var(--red);margin-bottom:16px;font-size:0.85rem">{{ error }}</div>
+        {% endif %}
+        <form method="POST">
+          <div class="form-group">
+            <label>Admin Password</label>
+            <input type="password" name="password" autofocus required>
+          </div>
+          <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center">Enter</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+
+  <!-- Stats -->
+  <div class="stats-bar" style="margin-bottom:28px">
+    <div class="stat-item"><span class="stat-num">{{ stats.total }}</span><div class="stat-label">Tips</div></div>
+    <div class="stat-item"><span class="stat-num">{{ stats.tipsters }}</span><div class="stat-label">Tipsters</div></div>
+    <div class="stat-item"><span class="stat-num">{{ stats.settled }}</span><div class="stat-label">Settled</div></div>
+    <div class="stat-item"><span class="stat-num">{{ stats.correct }}</span><div class="stat-label">Correct</div></div>
+  </div>
+
+  <!-- Settle results -->
+  <div class="section-title" style="margin-bottom:16px">⚽ Settle Match Results</div>
+  {% if not pending_matches %}
+  <div class="card" style="padding:24px;color:var(--muted);text-align:center;margin-bottom:32px">No pending matches to settle.</div>
+  {% else %}
+  {% for key, m in pending_matches.items() %}
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header">
+      <span style="font-weight:800">{{ m.home }} vs {{ m.away }}</span>
+      <span style="color:var(--muted);font-size:0.82rem">{{ m.tips|length }} tips · {{ m.date }}</span>
+    </div>
+    <div class="card-body">
+      <div class="consensus" style="height:8px;margin-bottom:10px">
+        <div class="con-h" style="width:{{ m.consensus.H }}%"></div>
+        <div class="con-d" style="width:{{ m.consensus.D }}%"></div>
+        <div class="con-a" style="width:{{ m.consensus.A }}%"></div>
+      </div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:16px">
+        Home {{ m.consensus.H }}% · Draw {{ m.consensus.D }}% · Away {{ m.consensus.A }}%
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="margin:0;flex:1;min-width:80px">
+          <label>{{ m.home }} goals</label>
+          <input type="number" id="ah_{{ loop.index }}" min="0" max="20" value="0" style="text-align:center;font-size:1.3rem;font-weight:800">
+        </div>
+        <div style="padding-bottom:12px;font-size:1.3rem;font-weight:800;color:var(--muted)">–</div>
+        <div class="form-group" style="margin:0;flex:1;min-width:80px">
+          <label>{{ m.away }} goals</label>
+          <input type="number" id="aa_{{ loop.index }}" min="0" max="20" value="0" style="text-align:center;font-size:1.3rem;font-weight:800">
+        </div>
+        <button class="btn btn-gold" onclick="settle({{ loop.index }}, '{{ m.home }}', '{{ m.away }}')" style="margin-bottom:0">
+          ✅ Settle
+        </button>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- Leaderboard -->
+  <div class="section-title" style="margin:32px 0 16px">🏆 Current Leaderboard</div>
+  <div class="card" style="margin-bottom:32px">
+    {% for row in leaderboard %}
+    <div class="lb-row">
+      <div class="lb-rank">{{ loop.index }}</div>
+      <div class="lb-handle">@{{ row.handle }}</div>
+      <div style="color:var(--muted);font-size:0.82rem">{{ row.correct }}/{{ row.tips }}</div>
+      <div class="lb-accuracy">{{ row.accuracy }}%</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- All tips table -->
+  <div class="section-title" style="margin-bottom:16px">📋 All Tips</div>
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);color:var(--muted);text-align:left">
+          <th style="padding:10px">Handle</th>
+          <th style="padding:10px">Match</th>
+          <th style="padding:10px">Pick</th>
+          <th style="padding:10px">Score</th>
+          <th style="padding:10px">Conf</th>
+          <th style="padding:10px">Status</th>
+          <th style="padding:10px">Reasoning</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in all_tips %}
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:10px;font-weight:700;color:var(--gold)">@{{ t.handle }}</td>
+          <td style="padding:10px">{{ t.home_team }} vs {{ t.away_team }}</td>
+          <td style="padding:10px">
+            <span class="pill pill-{{ t.result_pick }}">
+              {% if t.result_pick == 'H' %}H{% elif t.result_pick == 'D' %}D{% else %}A{% endif %}
+            </span>
+          </td>
+          <td style="padding:10px;font-weight:700">{{ t.home_goals }}–{{ t.away_goals }}</td>
+          <td style="padding:10px;color:var(--gold)">{{ '★' * t.confidence }}</td>
+          <td style="padding:10px">
+            {% if t.is_correct == True %}<span class="pill pill-correct">✅</span>
+            {% elif t.is_correct == False %}<span class="pill pill-wrong">❌</span>
+            {% else %}<span class="pill pill-pending">⏳</span>{% endif %}
+          </td>
+          <td style="padding:10px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            {{ t.reasoning or '—' }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function settle(idx, home, away) {
+  const ah = parseInt(document.getElementById('ah_' + idx).value);
+  const aa = parseInt(document.getElementById('aa_' + idx).value);
+  if (isNaN(ah) || isNaN(aa)) { showToast('Enter scores first', 'error'); return; }
+  const res = await fetch('/admin/settle', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({home, away, actual_home: ah, actual_away: aa})
+  });
+  const data = await res.json();
+  if (data.ok) {
+    showToast(`✅ Settled ${data.settled} tips for ${home} vs ${away}`, 'success');
+    setTimeout(() => location.reload(), 1500);
+  } else {
+    showToast('Error settling match', 'error');
+  }
+}
+</script>
+{% endblock %}

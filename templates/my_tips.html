@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}My Tips — TipKing{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="page-header">
+    <div class="page-title">📋 My Tips</div>
+    <div class="page-sub">Your prediction history and accuracy</div>
+  </div>
+
+  {% if not handle %}
+  <div style="text-align:center;padding:60px 20px">
+    <div style="font-size:3rem;margin-bottom:16px">👤</div>
+    <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px">Enter your Twitter handle</div>
+    <div style="color:var(--muted);margin-bottom:24px">Set your handle to view your tip history</div>
+    <button class="btn btn-gold btn-hero" onclick="openHandleModal()">Set Handle →</button>
+  </div>
+  {% elif not tips %}
+  <div style="text-align:center;padding:60px 20px">
+    <div style="font-size:3rem;margin-bottom:16px">📭</div>
+    <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px">No tips yet, @{{ handle }}</div>
+    <div style="color:var(--muted);margin-bottom:24px">Go submit your first tip!</div>
+    <a href="/fixtures" class="btn btn-gold btn-hero">Browse Fixtures →</a>
+  </div>
+  {% else %}
+
+  <!-- Stats -->
+  <div class="stats-bar" style="margin-bottom:28px">
+    <div class="stat-item">
+      <span class="stat-num">{{ tips|length }}</span>
+      <div class="stat-label">Total Tips</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ tips|selectattr('is_correct', 'ne', None)|list|length }}</span>
+      <div class="stat-label">Settled</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ correct }}</span>
+      <div class="stat-label">Correct</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ accuracy }}%</span>
+      <div class="stat-label">Accuracy</div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:16px;color:var(--muted);font-size:0.85rem">
+    Showing tips for <strong style="color:var(--gold)">@{{ handle }}</strong>
+    <a href="/set-handle" onclick="event.preventDefault();openHandleModal()" style="color:var(--muted);margin-left:8px;font-size:0.8rem">change</a>
+  </div>
+
+  {% for tip in tips %}
+  {% set status = 'correct' if tip.is_correct == True else ('wrong' if tip.is_correct == False else 'pending') %}
+  <div class="tip-card {{ status }}">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-weight:800;font-size:0.95rem">{{ tip.home_team }} vs {{ tip.away_team }}</div>
+        <div style="color:var(--muted);font-size:0.78rem;margin-top:2px">{{ tip.match_date }}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span class="pill pill-{{ tip.result_pick }}">
+          {% if tip.result_pick == 'H' %}Home Win{% elif tip.result_pick == 'D' %}Draw{% else %}Away Win{% endif %}
+        </span>
+        <span style="font-weight:800">{{ tip.home_goals }}–{{ tip.away_goals }}</span>
+        <span class="tip-stars">{{ '★' * tip.confidence }}</span>
+        {% if tip.is_correct == True %}
+          <span class="pill pill-correct">✅ Correct</span>
+        {% elif tip.is_correct == False %}
+          <span class="pill pill-wrong">❌ Wrong</span>
+          {% if tip.actual_home is not none %}
+          <span style="color:var(--muted);font-size:0.78rem">Actual: {{ tip.actual_home }}–{{ tip.actual_away }}</span>
+          {% endif %}
+        {% else %}
+          <span class="pill pill-pending">⏳ Pending</span>
+        {% endif %}
+      </div>
+    </div>
+    {% if tip.reasoning %}
+    <div class="tip-reasoning">"{{ tip.reasoning }}"</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+</div>
+{% endblock %}

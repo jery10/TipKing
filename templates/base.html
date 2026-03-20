@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}TipKing — Submit Tips. Win Rewards.{% endblock %}</title>
+  <meta name="description" content="Submit your football predictions on TipKing. The best tipsters get rewarded. Free to join.">
+  <meta property="og:title" content="TipKing — Submit Tips. Win Rewards.">
+  <meta property="og:description" content="Submit free football predictions. Win rewards for being right.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Tip<span>King</span> 👑</a>
+  <div class="nav-links">
+    <a href="/fixtures" class="{% if request.path == '/fixtures' %}active{% endif %}">Fixtures</a>
+    <a href="/leaderboard" class="{% if request.path == '/leaderboard' %}active{% endif %}">Leaderboard</a>
+    <a href="/my-tips" class="{% if request.path == '/my-tips' %}active{% endif %}">My Tips</a>
+    <a href="https://betpredict.streamlit.app" target="_blank" style="color: var(--gold)">📊 Stats Model</a>
+  </div>
+  <div class="nav-handle">
+    {% if handle %}
+      <span class="handle-badge">@{{ handle }}</span>
+    {% else %}
+      <button class="btn btn-gold btn-sm" onclick="openHandleModal()">Set Handle</button>
+    {% endif %}
+  </div>
+</nav>
+
+{% block content %}{% endblock %}
+
+<!-- Mobile nav -->
+<nav class="mobile-nav">
+  <a href="/" class="{% if request.path == '/' %}active{% endif %}">
+    <span class="nav-icon">🏠</span> Home
+  </a>
+  <a href="/fixtures" class="{% if request.path == '/fixtures' %}active{% endif %}">
+    <span class="nav-icon">📅</span> Fixtures
+  </a>
+  <a href="/leaderboard" class="{% if request.path == '/leaderboard' %}active{% endif %}">
+    <span class="nav-icon">🏆</span> Leaders
+  </a>
+  <a href="/my-tips" class="{% if request.path == '/my-tips' %}active{% endif %}">
+    <span class="nav-icon">📋</span> My Tips
+  </a>
+</nav>
+
+<!-- Handle modal -->
+<div class="handle-modal hidden" id="handleModal">
+  <div class="modal-box">
+    <div class="modal-icon">👑</div>
+    <div class="modal-title">Enter your Twitter handle</div>
+    <div class="modal-sub">Your handle is your identity on TipKing. Winners are announced by handle.</div>
+    <form action="/set-handle" method="POST">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <div class="form-group">
+        <input type="text" name="handle" placeholder="@yourhandle" required
+               style="text-align:center;font-size:1.1rem;font-weight:700"
+               autofocus>
+      </div>
+      <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center">
+        Let's go 👑
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<footer>
+  <div>👑 <strong>TipKing</strong> — Submit Tips. Win Rewards.</div>
+  <div class="footer-links">
+    <a href="/fixtures">Fixtures</a>
+    <a href="/leaderboard">Leaderboard</a>
+    <a href="/my-tips">My Tips</a>
+    <a href="https://betpredict.streamlit.app" target="_blank">Stats Model</a>
+  </div>
+  <div style="margin-top:12px;color:#555">Free to join. No money required to submit tips.</div>
+</footer>
+
+<script>
+function openHandleModal() {
+  document.getElementById('handleModal').classList.remove('hidden');
+}
+function closeHandleModal() {
+  document.getElementById('handleModal').classList.add('hidden');
+}
+document.getElementById('handleModal').addEventListener('click', function(e) {
+  if (e.target === this) closeHandleModal();
+});
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function stars(n) {
+  return '★'.repeat(n) + '☆'.repeat(5-n);
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
