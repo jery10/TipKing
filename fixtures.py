@@ -48,5 +48,4 @@ def get_upcoming(days=14):
 
     if not all_matches:
         return []
-    df = pd.DataFrame(all_matches).sort_values("date")
-    return df.to_dict("records")
+    return sorted(all_matches, key=lambda x: x["date"])
