@@ -44,9 +44,22 @@
     </div>
   </div>
 
+  {% if total_earned >= 500 %}
+  <div style="background:rgba(0,200,81,0.08);border:1px solid rgba(0,200,81,0.25);border-radius:12px;padding:16px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div>
+      <div style="font-weight:800;font-size:0.95rem;color:var(--green)">🎉 You have ₦{{ total_earned }} to claim!</div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-top:4px">Payouts are sent to your bank account within 7 days. Make sure your bank details are saved in your profile.</div>
+    </div>
+    <a href="/profile" class="btn btn-gold btn-sm">Update Bank Details →</a>
+  </div>
+  {% elif total_earned > 0 %}
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:0.82rem;color:var(--muted)">
+    💰 You've earned <strong style="color:var(--text)">₦{{ total_earned }}</strong> so far. Minimum ₦500 required for payout. Keep predicting!
+  </div>
+  {% endif %}
+
   <div style="margin-bottom:16px;color:var(--muted);font-size:0.85rem">
     Showing predictions for <strong style="color:var(--primary-light)">{{ handle | username }}</strong>
-    <a href="/set-handle" onclick="event.preventDefault();openHandleModal()" style="color:var(--muted);margin-left:8px;font-size:0.8rem">change</a>
   </div>
 
   {% for tip in tips %}
