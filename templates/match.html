@@ -177,22 +177,22 @@
               <input type="hidden" id="btts_pick" value="">
             </div>
 
-            <!-- Step 2: Score — only shown when Match Result is picked -->
-            <div class="form-group" id="scoreStep" style="display:none">
-              <div class="form-step-label">Step 2 — Exact Score <span style="color:var(--green);font-weight:800">₦1,600</span></div>
+            <!-- Step 2: Exact Score — always visible, standalone optional prediction -->
+            <div class="form-group">
+              <div class="form-step-label">Step 2 — Exact Score <span style="color:var(--green);font-weight:800">₦1,600</span> <span style="font-weight:400;text-transform:none;color:var(--muted)">(optional)</span></div>
               <div class="score-inputs">
                 <div>
                   <div style="font-size:0.7rem;color:var(--muted);text-align:center;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ home }}</div>
-                  <input type="number" id="homeGoals" min="0" max="15" value="1" class="score-input">
+                  <input type="number" id="homeGoals" min="0" max="15" placeholder="–" class="score-input">
                 </div>
                 <div class="score-sep">–</div>
                 <div>
                   <div style="font-size:0.7rem;color:var(--muted);text-align:center;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ away }}</div>
-                  <input type="number" id="awayGoals" min="0" max="15" value="0" class="score-input">
+                  <input type="number" id="awayGoals" min="0" max="15" placeholder="–" class="score-input">
                 </div>
               </div>
               <div style="font-size:0.72rem;color:var(--muted);margin-top:6px;text-align:center">
-                Score must match your result pick
+                If you also picked Match Result, the score must be consistent with it
               </div>
             </div>
 
@@ -205,10 +205,11 @@
               </div>
             </div>
 
-            <!-- Reasoning -->
+            <!-- Reasoning — required -->
             <div class="form-group">
-              <div class="form-step-label">Your reasoning <span style="font-weight:400;text-transform:none;color:var(--muted)">(optional)</span></div>
-              <textarea id="reasoning" placeholder="e.g. Home team hasn't lost at home all season, key striker is back from injury..."></textarea>
+              <div class="form-step-label">Your reasoning <span style="color:var(--red)">*</span></div>
+              <textarea id="reasoning" placeholder="e.g. Home team hasn't lost at home all season, key striker is back from injury..." style="border-color:var(--border)"></textarea>
+              <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">BetPredict uses your reasoning to improve match predictions.</div>
             </div>
 
             <div id="scoreWarning" style="color:var(--red);font-size:0.82rem;margin-bottom:12px;display:none;padding:10px;background:rgba(255,68,68,0.08);border-radius:8px"></div>
@@ -302,36 +303,26 @@ function pickMarket(market, value) {
   if (isDeselect) {
     activeMarket = null;
     activeValue  = null;
-    document.getElementById('scoreStep').style.display = 'none';
     document.getElementById('scoreWarning').style.display = 'none';
     return;
   }
 
-  // Set selection
   activeMarket = market;
   activeValue  = value;
   document.getElementById(market + '_pick').value = value;
   const prefix = market === 'goals_range' ? 'gr' : (market === 'result' ? 'res' : market);
   document.getElementById(prefix + '_' + value)?.classList.add('mkt-active');
-
-  // Show/hide score step
-  document.getElementById('scoreStep').style.display = market === 'result' ? 'block' : 'none';
   document.getElementById('scoreWarning').style.display = 'none';
-
-  // Auto-set score default to match result pick
-  if (market === 'result') {
-    const hg = parseInt(document.getElementById('homeGoals').value);
-    const ag = parseInt(document.getElementById('awayGoals').value);
-    if (value === 'H' && hg <= ag) { document.getElementById('homeGoals').value = 1; document.getElementById('awayGoals').value = 0; }
-    if (value === 'A' && ag <= hg) { document.getElementById('homeGoals').value = 0; document.getElementById('awayGoals').value = 1; }
-    if (value === 'D' && hg !== ag) { document.getElementById('awayGoals').value = hg; }
-  }
 }
 
 function validateScore() {
-  if (activeMarket !== 'result') return true;
-  const hg = parseInt(document.getElementById('homeGoals').value);
-  const ag = parseInt(document.getElementById('awayGoals').value);
+  // Only validate if BOTH score fields are filled AND result was picked
+  const hgVal = document.getElementById('homeGoals').value;
+  const agVal = document.getElementById('awayGoals').value;
+  if (hgVal === '' || agVal === '') return true; // score is optional
+  if (activeMarket !== 'result') return true;    // no result picked, no constraint
+  const hg = parseInt(hgVal);
+  const ag = parseInt(agVal);
   const warn = document.getElementById('scoreWarning');
   if (activeValue === 'H' && hg <= ag) {
     warn.textContent = '⚠️ Score doesn\'t match Home Win — home goals must be higher.';
@@ -353,18 +344,23 @@ document.getElementById('homeGoals')?.addEventListener('input', validateScore);
 document.getElementById('awayGoals')?.addEventListener('input', validateScore);
 
 async function submitTip() {
-  if (!activeMarket) { showToast('Please pick a market first', 'error'); return; }
-  if (activeMarket === 'result' && !validateScore()) return;
+  if (!activeMarket) { showToast('Please pick a market in Step 1 first', 'error'); return; }
+  if (!document.getElementById('reasoning').value.trim()) {
+    showToast('Please add your reasoning — BetPredict uses it to improve predictions', 'error');
+    document.getElementById('reasoning').focus();
+    return;
+  }
+  if (!validateScore()) return;
 
   const btn = document.querySelector('#tipForm button[type=button]');
   btn.textContent = 'Submitting...';
   btn.disabled = true;
 
-  // For non-result markets we still need to send a result_pick + score
-  // Use result_pick from hidden input (empty if non-result market)
   const resultPick = document.getElementById('result_pick').value || null;
-  const hg = activeMarket === 'result' ? parseInt(document.getElementById('homeGoals').value) : 0;
-  const ag = activeMarket === 'result' ? parseInt(document.getElementById('awayGoals').value) : 0;
+  const hgVal = document.getElementById('homeGoals').value;
+  const agVal = document.getElementById('awayGoals').value;
+  const hg = hgVal !== '' ? parseInt(hgVal) : null;
+  const ag = agVal !== '' ? parseInt(agVal) : null;
 
   const res = await fetch('/submit', {
     method: 'POST',
@@ -377,6 +373,7 @@ async function submitTip() {
       result_pick:      resultPick,
       home_goals:       hg,
       away_goals:       ag,
+      has_score:        hg !== null && ag !== null,
       confidence:       parseInt(document.getElementById('confSlider').value),
       reasoning:        document.getElementById('reasoning').value,
       ou25_pick:        document.getElementById('ou25_pick').value || null,

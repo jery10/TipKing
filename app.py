@@ -385,10 +385,11 @@ def submit():
     if not any([result, ou25, ou35, ou45, gr, btts]):
         return jsonify({"ok": False, "error": "Please pick a market before submitting."})
 
-    hg = int(data.get("home_goals", 0))
-    ag = int(data.get("away_goals", 0))
-    # Only validate score when result market was picked
-    if result:
+    has_score = data.get("has_score", False)
+    hg = int(data["home_goals"]) if has_score and data.get("home_goals") is not None else None
+    ag = int(data["away_goals"]) if has_score and data.get("away_goals") is not None else None
+    # Validate score consistency only when both result AND score are provided
+    if result and has_score and hg is not None and ag is not None:
         if result == "H" and hg <= ag:
             return jsonify({"ok": False, "error": "Score doesn't match Home Win"})
         if result == "A" and ag <= hg:
