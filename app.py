@@ -378,7 +378,7 @@ def submit():
         if result == "D" and hg != ag:
             return jsonify({"ok": False, "error": "Score doesn't match Draw"})
 
-    ok = submit_tip(
+    result_obj = submit_tip(
         handle=handle,
         competition=data.get("competition", ""),
         home_team=data.get("home_team"),
@@ -395,7 +395,11 @@ def submit():
         goals_range_pick=gr,
         btts_pick=btts,
     )
-    return jsonify({"ok": ok})
+    if result_obj is True:
+        return jsonify({"ok": True})
+    elif isinstance(result_obj, tuple):
+        return jsonify({"ok": False, "error": result_obj[1]})
+    return jsonify({"ok": False, "error": "Could not save prediction. Please try again."})
 
 
 @app.route("/leaderboard")

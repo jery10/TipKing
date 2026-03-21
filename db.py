@@ -78,28 +78,38 @@ def submit_tip(handle, competition, home_team, away_team,
                confidence, reasoning,
                ou25_pick=None, ou35_pick=None, ou45_pick=None,
                goals_range_pick=None, btts_pick=None):
+    base = {
+        "handle":      handle.lstrip("@").lower().strip(),
+        "competition": competition,
+        "home_team":   home_team,
+        "away_team":   away_team,
+        "match_date":  match_date,
+        "result_pick": result_pick,
+        "home_goals":  int(home_goals),
+        "away_goals":  int(away_goals),
+        "confidence":  int(confidence),
+        "reasoning":   reasoning,
+    }
+    extended = {
+        **base,
+        "ou25_pick":        ou25_pick or None,
+        "ou35_pick":        ou35_pick or None,
+        "ou45_pick":        ou45_pick or None,
+        "goals_range_pick": goals_range_pick or None,
+        "btts_pick":        btts_pick or None,
+    }
     try:
-        get_db().table("tips").insert({
-            "handle":           handle.lstrip("@").lower().strip(),
-            "competition":      competition,
-            "home_team":        home_team,
-            "away_team":        away_team,
-            "match_date":       match_date,
-            "result_pick":      result_pick,
-            "home_goals":       int(home_goals),
-            "away_goals":       int(away_goals),
-            "confidence":       int(confidence),
-            "reasoning":        reasoning,
-            "ou25_pick":        ou25_pick or None,
-            "ou35_pick":        ou35_pick or None,
-            "ou45_pick":        ou45_pick or None,
-            "goals_range_pick": goals_range_pick or None,
-            "btts_pick":        btts_pick or None,
-        }).execute()
+        get_db().table("tips").insert(extended).execute()
         return True
     except Exception as e:
-        print(f"submit_tip error: {e}")
-        return False
+        print(f"submit_tip (extended) error: {e}")
+        # Fall back to base columns only (DB may not have new columns yet)
+        try:
+            get_db().table("tips").insert(base).execute()
+            return True
+        except Exception as e2:
+            print(f"submit_tip (base) error: {e2}")
+            return False, str(e2)
 
 
 def get_tips_for_match(home_team, away_team):
