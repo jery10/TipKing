@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Create Account — TipKing{% endblock %}
+{% block content %}
+<div class="container">
+  <div style="max-width:460px;margin:60px auto">
+
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="font-size:2.5rem;margin-bottom:12px">👑</div>
+      <div style="font-size:1.6rem;font-weight:900;margin-bottom:6px">Create your account</div>
+      <div style="color:var(--muted)">Free to join. Make predictions. Get tipped when you're right.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        {% if error %}
+        <div style="background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);
+                    color:var(--red);padding:12px 16px;border-radius:8px;
+                    font-size:0.88rem;margin-bottom:20px">
+          ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+
+          <div class="form-group">
+            <label>Email address <span style="color:var(--red)">*</span></label>
+            <input type="email" name="email" placeholder="your@email.com" required autofocus>
+            <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Used to log in. Never shown publicly.</div>
+          </div>
+
+          <div class="form-group">
+            <label>Username <span style="color:var(--red)">*</span></label>
+            <div style="position:relative">
+              <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700">@</span>
+              <input type="text" name="username" placeholder="yourname"
+                     style="padding-left:28px"
+                     pattern="[a-zA-Z0-9_]+" title="Letters, numbers and underscores only"
+                     required>
+            </div>
+            <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Your public name on the leaderboard. Letters, numbers, underscores only.</div>
+          </div>
+
+          <div class="form-group">
+            <label>X / Twitter username <span style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></label>
+            <div style="position:relative">
+              <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700">@</span>
+              <input type="text" name="twitter" placeholder="yourtwitter"
+                     style="padding-left:28px">
+            </div>
+            <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Shown on leaderboard if you want followers to find you.</div>
+          </div>
+
+          <div class="form-group">
+            <label>Password <span style="color:var(--red)">*</span></label>
+            <input type="password" name="password" placeholder="Min. 6 characters" required minlength="6">
+          </div>
+
+          <div style="background:rgba(0,130,60,0.08);border:1px solid rgba(0,130,60,0.2);
+                      border-radius:8px;padding:12px;font-size:0.8rem;color:var(--muted);margin-bottom:20px">
+            ✅ Free to join &nbsp;·&nbsp; ✅ No deposits &nbsp;·&nbsp; ✅ Get tipped in Naira for correct predictions
+          </div>
+
+          <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;padding:14px;font-size:1rem">
+            Create Account 👑
+          </button>
+        </form>
+
+        <div style="text-align:center;margin-top:20px;font-size:0.88rem;color:var(--muted)">
+          Already have an account?
+          <a href="/login" style="color:var(--primary-light);font-weight:700;margin-left:4px">Sign in →</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

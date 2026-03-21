@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, s
 from dotenv import load_dotenv
 from db import (submit_tip, get_tips_for_match, has_tipped, get_my_tips,
                 get_leaderboard, get_all_tips, get_recent_winners, get_stats,
-                mark_result, calculate_payout)
+                mark_result, calculate_payout, register_user, login_user)
 from fixtures import get_upcoming, COMPETITIONS
 
 load_dotenv()
@@ -34,6 +34,15 @@ def get_handle():
 
 def get_twitter():
     return session.get("twitter", "")
+
+def login_required(f):
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not get_handle():
+            return redirect(f"/login?next={request.path}")
+        return f(*args, **kwargs)
+    return decorated
 
 def consensus(tips):
     if not tips:
@@ -70,16 +79,59 @@ def index():
         fixtures=fixtures, handle=get_handle(), twitter=get_twitter())
 
 
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if get_handle():
+        return redirect("/")
+    error = None
+    if request.method == "POST":
+        email    = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
+        username = request.form.get("username", "").strip()
+        twitter  = request.form.get("twitter", "").strip()
+        if len(password) < 6:
+            error = "Password must be at least 6 characters."
+        elif not username:
+            error = "Username is required."
+        else:
+            ok, error = register_user(email, password, username, twitter)
+            if ok:
+                session["handle"]  = username.lower().strip()
+                session["twitter"] = twitter.lstrip("@").strip()
+                return redirect("/")
+    return render_template("register.html", error=error, twitter=get_twitter(), handle=get_handle())
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if get_handle():
+        return redirect("/")
+    error = None
+    next_page = request.args.get("next", "/")
+    if request.method == "POST":
+        email    = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
+        next_page = request.form.get("next", "/")
+        user, error = login_user(email, password)
+        if user:
+            session["handle"]  = user["username"]
+            session["twitter"] = user.get("twitter", "")
+            return redirect(next_page)
+    return render_template("login.html", error=error, next=next_page, twitter=get_twitter(), handle=get_handle())
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
+
 @app.route("/set-handle", methods=["POST"])
 def set_handle():
-    handle = request.form.get("handle", "").strip().lower()
-    if handle:
-        session["handle"] = handle
-    twitter = request.form.get("twitter", "").lstrip("@").strip()
-    if twitter:
-        session["twitter"] = twitter
-    next_page = request.form.get("next", "/")
-    return redirect(next_page)
+    # Legacy redirect — send to register if not logged in
+    if not get_handle():
+        return redirect("/register")
+    return redirect("/")
 
 
 @app.route("/fixtures")

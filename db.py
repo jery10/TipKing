@@ -1,5 +1,6 @@
 import os
 from supabase import create_client, Client
+from werkzeug.security import generate_password_hash, check_password_hash
 
 _sb: Client = None
 
@@ -10,6 +11,42 @@ def get_db() -> Client:
         key = os.getenv("SUPABASE_KEY", "")
         _sb = create_client(url, key)
     return _sb
+
+
+def register_user(email, password, username, twitter=""):
+    try:
+        email = email.lower().strip()
+        username = username.lower().strip()
+        twitter = twitter.lstrip("@").strip()
+        # Check uniqueness
+        existing_email = get_db().table("users").select("id").eq("email", email).execute()
+        if existing_email.data:
+            return False, "An account with that email already exists."
+        existing_user = get_db().table("users").select("id").eq("username", username).execute()
+        if existing_user.data:
+            return False, "That username is already taken."
+        get_db().table("users").insert({
+            "email": email,
+            "password_hash": generate_password_hash(password),
+            "username": username,
+            "twitter": twitter,
+        }).execute()
+        return True, ""
+    except Exception as e:
+        return False, f"Registration failed: {e}"
+
+
+def login_user(email, password):
+    try:
+        res = get_db().table("users").select("*").eq("email", email.lower().strip()).execute()
+        if not res.data:
+            return None, "No account found with that email."
+        user = res.data[0]
+        if not check_password_hash(user["password_hash"], password):
+            return None, "Incorrect password."
+        return user, ""
+    except Exception as e:
+        return None, f"Login failed: {e}"
 
 
 def submit_tip(handle, competition, home_team, away_team,

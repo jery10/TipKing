@@ -84,13 +84,14 @@
         <div class="card-body">
           {% if not handle %}
           <div style="text-align:center;padding:20px">
-            <div style="font-size:2rem;margin-bottom:12px">📧</div>
-            <div style="font-weight:700;margin-bottom:8px">Sign in first</div>
+            <div style="font-size:2rem;margin-bottom:12px">👑</div>
+            <div style="font-weight:700;margin-bottom:8px">Sign in to predict</div>
             <div style="color:var(--muted);font-size:0.88rem;margin-bottom:20px;line-height:1.5">
-              Just enter your email — no password needed.<br>
-              We use it to credit you when you're right.
+              Create a free account or sign in.<br>
+              We track your predictions and pay you when you're right.
             </div>
-            <button class="btn btn-gold" onclick="openHandleModal()">Enter Email →</button>
+            <a href="/login?next={{ request.path }}" class="btn btn-gold" style="margin-right:8px">Sign In →</a>
+            <a href="/register" class="btn btn-outline">Register Free</a>
           </div>
           {% else %}
           <form id="tipForm">
@@ -157,8 +158,7 @@
               Submit My Tip 👑
             </button>
             <div style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:8px">
-              Predicting as <strong style="color:var(--primary-light)">{% if twitter %}@{{ twitter }}{% else %}{{ handle | username }}{% endif %}</strong>
-              <a href="#" onclick="event.preventDefault();openHandleModal()" style="color:var(--muted);margin-left:6px">edit profile</a>
+              Predicting as <strong style="color:var(--primary-light)">@{% if twitter %}{{ twitter }}{% else %}{{ handle }}{% endif %}</strong>
             </div>
           </form>
           {% endif %}

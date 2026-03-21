@@ -23,11 +23,11 @@
   </div>
   <div class="nav-handle">
     {% if handle %}
-      <span class="handle-badge" onclick="openHandleModal()" style="cursor:pointer" title="Edit profile">
-        {% if twitter %}@{{ twitter }}{% else %}{{ handle | username }}{% endif %}
-      </span>
+      <span class="handle-badge">@{% if twitter %}{{ twitter }}{% else %}{{ handle }}{% endif %}</span>
+      <a href="/logout" style="color:rgba(255,255,255,0.6);font-size:0.8rem;font-weight:600;padding:6px 10px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Sign out</a>
     {% else %}
-      <button class="btn btn-gold btn-sm" style="background:#fff;color:var(--primary)" onclick="openHandleModal()">Sign In</button>
+      <a href="/login" class="btn btn-gold btn-sm" style="background:#fff;color:var(--primary)">Sign In</a>
+      <a href="/register" class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3)">Register</a>
     {% endif %}
   </div>
 </nav>
@@ -50,37 +50,6 @@
   </a>
 </nav>
 
-<!-- Email sign-in modal -->
-<div class="handle-modal hidden" id="handleModal">
-  <div class="modal-box">
-    <div class="modal-icon">👑</div>
-    <div class="modal-title">Your Profile</div>
-    <div class="modal-sub">Enter your email to track predictions. Add your Twitter so people recognise you on the leaderboard.</div>
-    <form action="/set-handle" method="POST">
-      <input type="hidden" name="next" value="{{ request.path }}">
-      <div class="form-group" style="text-align:left">
-        <label style="text-align:left">Email address <span style="color:var(--red)">*</span></label>
-        <input type="email" name="handle" placeholder="your@email.com" required
-               value="{{ handle or '' }}"
-               style="font-size:0.95rem">
-      </div>
-      <div class="form-group" style="text-align:left">
-        <label style="text-align:left">Twitter / X username <span style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></label>
-        <div style="position:relative">
-          <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700">@</span>
-          <input type="text" name="twitter" placeholder="yourhandle"
-                 value="{{ twitter or '' }}"
-                 style="padding-left:28px;font-size:0.95rem">
-        </div>
-        <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Shown on leaderboard so your followers can find you</div>
-      </div>
-      <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center">
-        Save Profile 👑
-      </button>
-    </form>
-  </div>
-</div>
-
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -96,15 +65,7 @@
 </footer>
 
 <script>
-function openHandleModal() {
-  document.getElementById('handleModal').classList.remove('hidden');
-}
-function closeHandleModal() {
-  document.getElementById('handleModal').classList.add('hidden');
-}
-document.getElementById('handleModal').addEventListener('click', function(e) {
-  if (e.target === this) closeHandleModal();
-});
+function openHandleModal() { window.location.href = '/login'; }
 
 function showToast(msg, type='success') {
   const t = document.getElementById('toast');
