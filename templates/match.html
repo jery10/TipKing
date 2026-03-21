@@ -157,8 +157,8 @@
               Submit My Tip 👑
             </button>
             <div style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:8px">
-              Tipping as <strong style="color:var(--primary-light)">{{ handle | username }}</strong>
-              <a href="#" onclick="event.preventDefault();openHandleModal()" style="color:var(--muted);margin-left:6px">change</a>
+              Predicting as <strong style="color:var(--primary-light)">{% if twitter %}@{{ twitter }}{% else %}{{ handle | username }}{% endif %}</strong>
+              <a href="#" onclick="event.preventDefault();openHandleModal()" style="color:var(--muted);margin-left:6px">edit profile</a>
             </div>
           </form>
           {% endif %}

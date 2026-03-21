@@ -31,6 +31,9 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "tipking2024")
 def get_handle():
     return session.get("handle", "")
 
+def get_twitter():
+    return session.get("twitter", "")
+
 def consensus(tips):
     if not tips:
         return {"H": 0, "D": 0, "A": 0, "total": 0, "top": None}
@@ -63,14 +66,17 @@ def index():
         f["consensus"] = consensus(tips)
     return render_template("index.html",
         stats=stats, winners=winners, leaderboard=lb,
-        fixtures=fixtures, handle=get_handle())
+        fixtures=fixtures, handle=get_handle(), twitter=get_twitter())
 
 
 @app.route("/set-handle", methods=["POST"])
 def set_handle():
-    handle = request.form.get("handle", "").lstrip("@").lower().strip()
+    handle = request.form.get("handle", "").strip().lower()
     if handle:
         session["handle"] = handle
+    twitter = request.form.get("twitter", "").lstrip("@").strip()
+    if twitter:
+        session["twitter"] = twitter
     next_page = request.form.get("next", "/")
     return redirect(next_page)
 
@@ -97,7 +103,7 @@ def fixtures_page():
 
     return render_template("fixtures.html",
         grouped=grouped, competitions=COMPETITIONS,
-        comp_filter=comp_filter, handle=get_handle())
+        comp_filter=comp_filter, handle=get_handle(), twitter=get_twitter())
 
 
 @app.route("/match/<path:home_team>/vs/<path:away_team>")
@@ -116,7 +122,7 @@ def match_page(home_team, away_team):
         home=home_team, away=away_team,
         tips=tips, consensus=con,
         already=already, my_tip=my_tip,
-        handle=get_handle())
+        handle=get_handle(), twitter=get_twitter())
 
 
 @app.route("/submit", methods=["POST"])
@@ -157,7 +163,7 @@ def leaderboard():
     lb = get_leaderboard()
     stats = get_stats()
     return render_template("leaderboard.html",
-        leaderboard=lb, stats=stats, handle=get_handle())
+        leaderboard=lb, stats=stats, handle=get_handle(), twitter=get_twitter())
 
 
 @app.route("/my-tips", methods=["GET", "POST"])
@@ -173,7 +179,7 @@ def my_tips():
         accuracy = round(correct / len(settled) * 100, 1) if settled else 0
     return render_template("my_tips.html",
         handle=handle, tips=tips,
-        accuracy=accuracy, correct=correct)
+        accuracy=accuracy, correct=correct, twitter=get_twitter())
 
 
 @app.route("/admin", methods=["GET", "POST"])

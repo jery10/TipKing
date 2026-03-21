@@ -23,7 +23,9 @@
   </div>
   <div class="nav-handle">
     {% if handle %}
-      <span class="handle-badge">{{ handle | username }}</span>
+      <span class="handle-badge" onclick="openHandleModal()" style="cursor:pointer" title="Edit profile">
+        {% if twitter %}@{{ twitter }}{% else %}{{ handle | username }}{% endif %}
+      </span>
     {% else %}
       <button class="btn btn-gold btn-sm" style="background:#fff;color:var(--primary)" onclick="openHandleModal()">Sign In</button>
     {% endif %}
@@ -52,17 +54,28 @@
 <div class="handle-modal hidden" id="handleModal">
   <div class="modal-box">
     <div class="modal-icon">👑</div>
-    <div class="modal-title">Enter your email</div>
-    <div class="modal-sub">Your email is your identity on TipKing. Winners are notified by email. We never share it.</div>
+    <div class="modal-title">Your Profile</div>
+    <div class="modal-sub">Enter your email to track predictions. Add your Twitter so people recognise you on the leaderboard.</div>
     <form action="/set-handle" method="POST">
       <input type="hidden" name="next" value="{{ request.path }}">
-      <div class="form-group">
+      <div class="form-group" style="text-align:left">
+        <label style="text-align:left">Email address <span style="color:var(--red)">*</span></label>
         <input type="email" name="handle" placeholder="your@email.com" required
-               style="text-align:center;font-size:1rem;font-weight:600"
-               autofocus>
+               value="{{ handle or '' }}"
+               style="font-size:0.95rem">
+      </div>
+      <div class="form-group" style="text-align:left">
+        <label style="text-align:left">Twitter / X username <span style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></label>
+        <div style="position:relative">
+          <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700">@</span>
+          <input type="text" name="twitter" placeholder="yourhandle"
+                 value="{{ twitter or '' }}"
+                 style="padding-left:28px;font-size:0.95rem">
+        </div>
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Shown on leaderboard so your followers can find you</div>
       </div>
       <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center">
-        Let's go 👑
+        Save Profile 👑
       </button>
     </form>
   </div>
