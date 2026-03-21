@@ -122,6 +122,45 @@ def get_stats():
         return {"total": 0, "tipsters": 0, "settled": 0, "correct": 0}
 
 
+PAYOUTS = {
+    "result":      400,   # H/D/A correct
+    "exact_score": 1600,  # exact scoreline correct
+    "over_under":  200,   # over/under 2.5 correct
+    "goals_range": 300,   # goals range correct
+}
+
+def _goals_range(total):
+    if total <= 1:  return "0-1"
+    elif total <= 3: return "2-3"
+    elif total <= 5: return "4-5"
+    else:           return "6+"
+
+def calculate_payout(tip, actual_home, actual_away):
+    """Calculate total payout in Naira for a settled tip."""
+    actual_result = "H" if actual_home > actual_away else ("A" if actual_away > actual_home else "D")
+    ph, pa = int(tip["home_goals"]), int(tip["away_goals"])
+    payout = 0
+    breakdown = {}
+
+    if tip["result_pick"] == actual_result:
+        payout += PAYOUTS["result"]
+        breakdown["Match Result"] = PAYOUTS["result"]
+
+    if ph == actual_home and pa == actual_away:
+        payout += PAYOUTS["exact_score"]
+        breakdown["Exact Score"] = PAYOUTS["exact_score"]
+
+    if (ph + pa > 2.5) == (actual_home + actual_away > 2.5):
+        payout += PAYOUTS["over_under"]
+        breakdown["Over/Under 2.5"] = PAYOUTS["over_under"]
+
+    if _goals_range(ph + pa) == _goals_range(actual_home + actual_away):
+        payout += PAYOUTS["goals_range"]
+        breakdown["Goals Range"] = PAYOUTS["goals_range"]
+
+    return payout, breakdown
+
+
 def mark_result(tip_id, is_correct, actual_home, actual_away):
     try:
         get_db().table("tips").update({

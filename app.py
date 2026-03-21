@@ -3,7 +3,8 @@ import traceback
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from dotenv import load_dotenv
 from db import (submit_tip, get_tips_for_match, has_tipped, get_my_tips,
-                get_leaderboard, get_all_tips, get_recent_winners, get_stats, mark_result)
+                get_leaderboard, get_all_tips, get_recent_winners, get_stats,
+                mark_result, calculate_payout)
 from fixtures import get_upcoming, COMPETITIONS
 
 load_dotenv()
@@ -172,14 +173,20 @@ def my_tips():
     tips = []
     accuracy = 0
     correct = 0
+    total_earned = 0
     if handle:
         tips = get_my_tips(handle)
         settled = [t for t in tips if t.get("is_correct") is not None]
         correct = sum(1 for t in settled if t["is_correct"])
         accuracy = round(correct / len(settled) * 100, 1) if settled else 0
+        for t in settled:
+            if t.get("actual_home") is not None:
+                p, _ = calculate_payout(t, t["actual_home"], t["actual_away"])
+                total_earned += p
     return render_template("my_tips.html",
         handle=handle, tips=tips,
-        accuracy=accuracy, correct=correct, twitter=get_twitter())
+        accuracy=accuracy, correct=correct,
+        total_earned=total_earned, twitter=get_twitter())
 
 
 @app.route("/admin", methods=["GET", "POST"])
@@ -234,10 +241,47 @@ def admin_settle():
                   if t["home_team"] == home and t["away_team"] == away
                   and t.get("is_correct") is None]
     count = 0
+    total_payout = 0
     for tip in match_tips:
-        mark_result(tip["id"], tip["result_pick"] == actual_result, actual_home, actual_away)
+        is_correct = tip["result_pick"] == actual_result
+        payout, _ = calculate_payout(tip, actual_home, actual_away)
+        mark_result(tip["id"], is_correct, actual_home, actual_away)
+        total_payout += payout
         count += 1
-    return jsonify({"ok": True, "settled": count})
+    return jsonify({"ok": True, "settled": count, "total_payout": total_payout})
+
+
+# ── Public API — read by BetPredict ──────────────────────────────────────────
+
+@app.route("/api/match/<path:home_team>/vs/<path:away_team>")
+def api_match(home_team, away_team):
+    """Public endpoint: crowd consensus + reasoning for a match."""
+    tips = get_tips_for_match(home_team, away_team)
+    con = consensus(tips)
+    pending = [t for t in tips if t.get("is_correct") is None]
+    reasons = [t["reasoning"] for t in pending if t.get("reasoning", "").strip()]
+    return jsonify({
+        "home": home_team,
+        "away": away_team,
+        "total_predictions": len(tips),
+        "pending": len(pending),
+        "consensus": {
+            "home_win_pct": con["H"],
+            "draw_pct":     con["D"],
+            "away_win_pct": con["A"],
+            "top_pick":     con["top"],
+        },
+        "avg_predicted_home": round(sum(t["home_goals"] for t in pending) / len(pending), 2) if pending else None,
+        "avg_predicted_away": round(sum(t["away_goals"] for t in pending) / len(pending), 2) if pending else None,
+        "over_25_pct": round(sum(1 for t in pending if t["home_goals"] + t["away_goals"] > 2.5) / len(pending) * 100) if pending else None,
+        "reasoning": reasons[:10],  # top 10 reasons
+    })
+
+
+@app.route("/api/stats")
+def api_stats():
+    """Public stats endpoint for BetPredict dashboard."""
+    return jsonify(get_stats())
 
 
 if __name__ == "__main__":

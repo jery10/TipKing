@@ -1,16 +1,16 @@
 {% extends "base.html" %}
-{% block title %}My Tips — TipKing{% endblock %}
+{% block title %}My Predictions — TipKing{% endblock %}
 {% block content %}
 <div class="container">
   <div class="page-header">
     <div class="page-title">📋 My Predictions</div>
-    <div class="page-sub">Your prediction history and accuracy</div>
+    <div class="page-sub">Your prediction history and earnings</div>
   </div>
 
   {% if not handle %}
   <div style="text-align:center;padding:60px 20px">
     <div style="font-size:3rem;margin-bottom:16px">👤</div>
-    <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px">Sign in to see your tips</div>
+    <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px">Sign in to see your predictions</div>
     <div style="color:var(--muted);margin-bottom:24px">Enter your email to view your prediction history</div>
     <button class="btn btn-gold btn-hero" onclick="openHandleModal()">Enter Email →</button>
   </div>
@@ -35,11 +35,11 @@
     </div>
     <div class="stat-item">
       <span class="stat-num">{{ correct }}</span>
-      <div class="stat-label">Correct</div>
+      <div class="stat-label">Correct Result</div>
     </div>
     <div class="stat-item">
-      <span class="stat-num">{{ accuracy }}%</span>
-      <div class="stat-label">Accuracy</div>
+      <span class="stat-num" style="font-size:1.4rem">₦{{ total_earned }}</span>
+      <div class="stat-label">Total Earned</div>
     </div>
   </div>
 
@@ -62,18 +62,57 @@
         </span>
         <span style="font-weight:800">{{ tip.home_goals }}–{{ tip.away_goals }}</span>
         <span class="tip-stars">{{ '★' * tip.confidence }}</span>
-        {% if tip.is_correct == True %}
-          <span class="pill pill-correct">✅ Correct</span>
-        {% elif tip.is_correct == False %}
-          <span class="pill pill-wrong">❌ Wrong</span>
-          {% if tip.actual_home is not none %}
-          <span style="color:var(--muted);font-size:0.78rem">Actual: {{ tip.actual_home }}–{{ tip.actual_away }}</span>
-          {% endif %}
-        {% else %}
+        {% if tip.is_correct is none %}
           <span class="pill pill-pending">⏳ Pending</span>
+        {% else %}
+          {# Calculate payout breakdown #}
+          {% set ah = tip.actual_home %}
+          {% set aa = tip.actual_away %}
+          {% if ah is not none %}
+            {% set actual_result = 'H' if ah > aa else ('A' if aa > ah else 'D') %}
+            {% set earned = namespace(total=0) %}
+            {% set r_correct = tip.result_pick == actual_result %}
+            {% set s_correct = tip.home_goals == ah and tip.away_goals == aa %}
+            {% set ou_tip = tip.home_goals + tip.away_goals > 2.5 %}
+            {% set ou_actual = ah + aa > 2.5 %}
+            {% set ou_correct = ou_tip == ou_actual %}
+
+            {% if r_correct %}{% set earned.total = earned.total + 400 %}{% endif %}
+            {% if s_correct %}{% set earned.total = earned.total + 1600 %}{% endif %}
+            {% if ou_correct %}{% set earned.total = earned.total + 200 %}{% endif %}
+
+            {% if earned.total > 0 %}
+            <span class="pill pill-correct">✅ ₦{{ earned.total }}</span>
+            {% else %}
+            <span class="pill pill-wrong">❌ Wrong</span>
+            {% endif %}
+            <span style="color:var(--muted);font-size:0.78rem">Actual: {{ ah }}–{{ aa }}</span>
+          {% endif %}
         {% endif %}
       </div>
     </div>
+
+    {# Settled breakdown #}
+    {% if tip.actual_home is not none %}
+    {% set ah = tip.actual_home %}
+    {% set aa = tip.actual_away %}
+    {% set actual_result = 'H' if ah > aa else ('A' if aa > ah else 'D') %}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+      <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:{% if tip.result_pick == actual_result %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
+        Result {% if tip.result_pick == actual_result %}✓ +₦400{% else %}✗{% endif %}
+      </span>
+      <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:{% if tip.home_goals == ah and tip.away_goals == aa %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
+        Exact Score {% if tip.home_goals == ah and tip.away_goals == aa %}✓ +₦1,600{% else %}✗{% endif %}
+      </span>
+      <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:{% if (tip.home_goals + tip.away_goals > 2.5) == (ah + aa > 2.5) %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
+        O/U 2.5 {% if (tip.home_goals + tip.away_goals > 2.5) == (ah + aa > 2.5) %}✓ +₦200{% else %}✗{% endif %}
+      </span>
+      <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:{% if tip.home_goals + tip.away_goals <= 1 and ah + aa <= 1 or (2 <= tip.home_goals + tip.away_goals <= 3 and 2 <= ah + aa <= 3) or (4 <= tip.home_goals + tip.away_goals <= 5 and 4 <= ah + aa <= 5) or (tip.home_goals + tip.away_goals >= 6 and ah + aa >= 6) %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
+        Goals Range {% if tip.home_goals + tip.away_goals <= 1 and ah + aa <= 1 or (2 <= tip.home_goals + tip.away_goals <= 3 and 2 <= ah + aa <= 3) or (4 <= tip.home_goals + tip.away_goals <= 5 and 4 <= ah + aa <= 5) or (tip.home_goals + tip.away_goals >= 6 and ah + aa >= 6) %}✓ +₦300{% else %}✗{% endif %}
+      </span>
+    </div>
+    {% endif %}
+
     {% if tip.reasoning %}
     <div class="tip-reasoning">"{{ tip.reasoning }}"</div>
     {% endif %}
