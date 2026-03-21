@@ -11,7 +11,7 @@ from fixtures import get_upcoming, COMPETITIONS
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "tipking-secret-2024")
+app.secret_key = os.getenv("SECRET_KEY", "predict4free-secret-2024")
 
 # ── Seed data shown when leaderboard / match feed is sparse ──────────────────
 
@@ -88,7 +88,7 @@ def username_filter(email):
         return email.split('@')[0]
     return email or 'anonymous'
 
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "tipking2024")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "predict4free2024")
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
