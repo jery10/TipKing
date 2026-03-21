@@ -378,6 +378,11 @@ def submit():
     if has_tipped(handle, home_team, away_team):
         return jsonify({"ok": False, "error": "You've already made a prediction for this match."})
 
+    # Get real match date and competition from fixtures (never trust empty client value)
+    match_fixture = next((f for f in upcoming if f["home_team"] == home_team and f["away_team"] == away_team), None)
+    match_date = match_fixture["date_only"] if match_fixture else None
+    competition = match_fixture["competition"] if match_fixture else data.get("competition", "")
+
     # Validate — at least one market must be picked
     result = data.get("result_pick") or None
     ou25   = data.get("ou25_pick") or None
@@ -402,10 +407,10 @@ def submit():
 
     result_obj = submit_tip(
         handle=handle,
-        competition=data.get("competition", ""),
-        home_team=data.get("home_team"),
-        away_team=data.get("away_team"),
-        match_date=data.get("match_date"),
+        competition=competition,
+        home_team=home_team,
+        away_team=away_team,
+        match_date=match_date,
         result_pick=result,
         home_goals=hg,
         away_goals=ag,
