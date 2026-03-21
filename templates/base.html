@@ -25,7 +25,7 @@
     {% if handle %}
       <div class="profile-dropdown">
         <button class="profile-btn" id="profileBtn" onclick="toggleProfileMenu()">
-          👤 @{% if twitter %}{{ twitter }}{% else %}{{ handle }}{% endif %}
+          👤 @{% if twitter %}{{ twitter }}{% else %}{{ handle | username }}{% endif %}
           <span class="chevron">▼</span>
         </button>
         <div class="profile-menu" id="profileMenu">

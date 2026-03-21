@@ -231,9 +231,11 @@ def match_page(home_team, away_team):
 @app.route("/submit", methods=["POST"])
 def submit():
     data = request.get_json()
-    handle = get_handle() or data.get("handle", "")
-    if not handle:
+    raw_handle = get_handle() or data.get("handle", "")
+    if not raw_handle:
         return jsonify({"ok": False, "error": "No handle set"})
+    # Always use just the username part (strips email domain from old sessions)
+    handle = raw_handle.split("@")[0] if "@" in raw_handle else raw_handle
 
     # Reject if match has kicked off (no longer in upcoming fixtures)
     home_team = data.get("home_team", "")

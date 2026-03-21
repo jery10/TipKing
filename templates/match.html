@@ -161,16 +161,37 @@
               <textarea id="reasoning" placeholder="Why do you think this? e.g. Home team hasn't lost at home all season, key striker is back from injury..."></textarea>
             </div>
 
-            <!-- Markets being evaluated -->
+            <!-- Live prediction preview -->
             <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px">
-              <div style="font-size:0.72rem;font-weight:700;color:var(--primary-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">What you're scored on</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                <div style="font-size:0.78rem;color:var(--muted)">✅ Match Result <span style="color:var(--green);font-weight:700">₦400</span></div>
-                <div style="font-size:0.78rem;color:var(--muted)">🎯 Exact Score <span style="color:var(--green);font-weight:700">₦1,600</span></div>
-                <div style="font-size:0.78rem;color:var(--muted)">📊 Over/Under 2.5 <span style="color:var(--green);font-weight:700">₦200</span></div>
-                <div style="font-size:0.78rem;color:var(--muted)">⚽ Goals Range <span style="color:var(--green);font-weight:700">₦300</span></div>
+              <div style="font-size:0.72rem;font-weight:700;color:var(--primary-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">Your predictions — all 5 markets</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:0.8rem;color:var(--muted)">🏆 Match Result</span>
+                  <span id="prev-result" style="font-size:0.8rem;font-weight:700;color:var(--text)">—</span>
+                  <span style="font-size:0.75rem;color:var(--green);font-weight:700">₦400</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:0.8rem;color:var(--muted)">🎯 Exact Score</span>
+                  <span id="prev-score" style="font-size:0.8rem;font-weight:700;color:var(--text)">—</span>
+                  <span style="font-size:0.75rem;color:var(--green);font-weight:700">₦1,600</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:0.8rem;color:var(--muted)">📊 Over/Under 2.5</span>
+                  <span id="prev-ou" style="font-size:0.8rem;font-weight:700;color:var(--text)">—</span>
+                  <span style="font-size:0.75rem;color:var(--green);font-weight:700">₦200</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:0.8rem;color:var(--muted)">⚽ Goals Range</span>
+                  <span id="prev-range" style="font-size:0.8rem;font-weight:700;color:var(--text)">—</span>
+                  <span style="font-size:0.75rem;color:var(--green);font-weight:700">₦300</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:0.8rem;color:var(--muted)">👥 Both Teams Score</span>
+                  <span id="prev-btts" style="font-size:0.8rem;font-weight:700;color:var(--text)">—</span>
+                  <span style="font-size:0.75rem;color:var(--muted);font-weight:700">Bonus</span>
+                </div>
               </div>
-              <div style="font-size:0.7rem;color:var(--muted);margin-top:8px;opacity:0.7">O/U 2.5 and Goals Range are auto-calculated from your predicted score.</div>
+              <div style="font-size:0.7rem;color:var(--muted);margin-top:10px;opacity:0.7;border-top:1px solid var(--border);padding-top:8px">Markets update live as you fill in your score above.</div>
             </div>
 
             <div id="scoreWarning" style="color:var(--red);font-size:0.82rem;margin-bottom:12px;display:none;padding:10px;background:rgba(255,68,68,0.08);border-radius:8px"></div>
@@ -179,7 +200,7 @@
               Submit My Tip 👑
             </button>
             <div style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:8px">
-              Predicting as <strong style="color:var(--primary-light)">@{% if twitter %}{{ twitter }}{% else %}{{ handle }}{% endif %}</strong>
+              Predicting as <strong style="color:var(--primary-light)">@{% if twitter %}{{ twitter }}{% else %}{{ handle | username }}{% endif %}</strong>
             </div>
           </form>
           {% endif %}
@@ -270,9 +291,30 @@ function validateScore() {
   return true;
 }
 
-document.querySelectorAll('input[name="result_pick"]').forEach(r => r.addEventListener('change', validateScore));
-document.getElementById('homeGoals')?.addEventListener('input', validateScore);
-document.getElementById('awayGoals')?.addEventListener('input', validateScore);
+function goalsRange(total) {
+  if (total <= 1) return '0–1 goals';
+  if (total <= 3) return '2–3 goals';
+  if (total <= 5) return '4–5 goals';
+  return '6+ goals';
+}
+
+function updatePreview() {
+  const pick = document.querySelector('input[name="result_pick"]:checked')?.value;
+  const hg = parseInt(document.getElementById('homeGoals')?.value) || 0;
+  const ag = parseInt(document.getElementById('awayGoals')?.value) || 0;
+
+  const resultLabels = { H: 'Home Win', D: 'Draw', A: 'Away Win' };
+  document.getElementById('prev-result').textContent = pick ? resultLabels[pick] : '—';
+  document.getElementById('prev-score').textContent = `${hg} – ${ag}`;
+  document.getElementById('prev-ou').textContent = (hg + ag) > 2.5 ? 'Over 2.5' : 'Under 2.5';
+  document.getElementById('prev-range').textContent = goalsRange(hg + ag);
+  document.getElementById('prev-btts').textContent = (hg > 0 && ag > 0) ? 'Yes' : 'No';
+}
+
+document.querySelectorAll('input[name="result_pick"]').forEach(r => r.addEventListener('change', () => { validateScore(); updatePreview(); }));
+document.getElementById('homeGoals')?.addEventListener('input', () => { validateScore(); updatePreview(); });
+document.getElementById('awayGoals')?.addEventListener('input', () => { validateScore(); updatePreview(); });
+updatePreview();
 
 async function submitTip() {
   if (!validateScore()) return;
