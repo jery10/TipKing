@@ -99,57 +99,131 @@ nav {
   text-overflow: ellipsis;
 }
 
-/* ── Profile dropdown ── */
-.profile-dropdown { position: relative; }
-
-.profile-btn {
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 20px;
-  padding: 5px 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
+/* ── Profile icon button (nav) ── */
+.profile-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  border: 1.5px solid rgba(255,255,255,0.3);
   color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
-  transition: all 0.15s;
-  max-width: 180px;
-  white-space: nowrap;
-  overflow: hidden;
+  justify-content: center;
+  transition: background 0.15s, transform 0.15s;
+  flex-shrink: 0;
 }
-.profile-btn:hover { background: rgba(255,255,255,0.25); }
-.profile-btn .chevron { font-size: 0.6rem; transition: transform 0.2s; flex-shrink: 0; }
-.profile-btn.open .chevron { transform: rotate(180deg); }
+.profile-icon-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
 
-.profile-menu {
+/* ── Profile Drawer ── */
+.drawer-overlay {
   display: none;
-  position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  min-width: 200px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-  z-index: 200;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 300;
+  backdrop-filter: blur(2px);
 }
-.profile-menu.open { display: block; }
-.profile-menu a {
+.drawer-overlay.open { display: block; }
+
+.profile-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(320px, 88vw);
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  z-index: 301;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.profile-drawer.open { transform: translateX(0); }
+
+.drawer-inner { display: flex; flex-direction: column; min-height: 100%; }
+
+.drawer-head {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
+  gap: 12px;
+  padding: 20px 16px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+}
+
+.drawer-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.drawer-user-info { flex: 1; min-width: 0; }
+.drawer-username {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.drawer-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+.drawer-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.drawer-close:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
+.drawer-links { padding: 6px 0; }
+
+.drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--text);
   transition: background 0.12s;
-  white-space: nowrap;
+  cursor: pointer;
 }
-.profile-menu a:hover { background: var(--bg3); }
-.profile-menu .menu-divider { height: 1px; background: var(--border); margin: 4px 0; }
+.drawer-link:hover { background: var(--bg3); }
+.drawer-link-icon { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; }
+.drawer-link span:nth-child(2) { flex: 1; }
+.drawer-link-arrow { color: var(--muted); font-size: 1.1rem; font-weight: 400; flex-shrink: 0; }
+.drawer-link-danger { color: var(--red); }
+.drawer-link-danger:hover { background: rgba(255,68,68,0.08); }
+
+.drawer-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+.drawer-footer {
+  margin-top: auto;
+  padding: 20px 16px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
 
 /* ── Buttons ── */
 .btn {

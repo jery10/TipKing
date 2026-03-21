@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy — TipKing{% endblock %}
+{% block content %}
+<div class="container">
+  <div style="max-width:680px;margin:48px auto;padding-bottom:48px">
+    <div class="page-header">
+      <div class="page-title">🔒 Privacy Policy</div>
+      <div class="page-sub">Last updated: March 2026</div>
+    </div>
+
+    <div class="card">
+      <div class="card-body" style="line-height:1.8;color:var(--muted);font-size:0.88rem">
+
+        <h3 style="color:var(--text);font-size:1rem;margin-bottom:8px;margin-top:0">What we collect</h3>
+        <p style="margin-bottom:20px">We collect your email address, username, and optional X/Twitter handle when you register. We also store the predictions you make (teams, scores, reasoning) and your prediction results.</p>
+
+        <h3 style="color:var(--text);font-size:1rem;margin-bottom:8px">How we use it</h3>
+        <p style="margin-bottom:20px">Your email is used only to log you in — it is never shown publicly. Your username and predictions are displayed on the leaderboard and match pages. We do not sell your data to third parties.</p>
+
+        <h3 style="color:var(--text);font-size:1rem;margin-bottom:8px">Cookies & sessions</h3>
+        <p style="margin-bottom:20px">We use a session cookie to keep you logged in. No tracking cookies or third-party advertising cookies are used.</p>
+
+        <h3 style="color:var(--text);font-size:1rem;margin-bottom:8px">Data storage</h3>
+        <p style="margin-bottom:20px">Your data is stored securely on Supabase (PostgreSQL) hosted in the EU. Passwords are hashed using industry-standard bcrypt — we never store plaintext passwords.</p>
+
+        <h3 style="color:var(--text);font-size:1rem;margin-bottom:8px">Your rights</h3>
+        <p style="margin-bottom:20px">You can request deletion of your account and all associated data at any time by contacting us. Your predictions will be removed from the leaderboard within 7 days.</p>
+
+        <h3 style="color:var(--text);font-size:1rem;margin-bottom:8px">Contact</h3>
+        <p>Questions? Reach us via X/Twitter or through the app.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

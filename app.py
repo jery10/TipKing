@@ -107,16 +107,18 @@ def register():
         return redirect("/")
     error = None
     if request.method == "POST":
-        email    = request.form.get("email", "").strip()
-        password = request.form.get("password", "")
-        username = request.form.get("username", "").strip()
-        twitter  = request.form.get("twitter", "").strip()
+        email     = request.form.get("email", "").strip()
+        password  = request.form.get("password", "")
+        username  = request.form.get("username", "").strip()
+        twitter   = request.form.get("twitter", "").strip()
+        instagram = request.form.get("instagram", "").strip()
+        tiktok    = request.form.get("tiktok", "").strip()
         if len(password) < 6:
             error = "Password must be at least 6 characters."
         elif not username:
             error = "Username is required."
         else:
-            ok, error = register_user(email, password, username, twitter)
+            ok, error = register_user(email, password, username, twitter, instagram, tiktok)
             if ok:
                 session["handle"]  = username.lower().strip()
                 session["twitter"] = twitter.lstrip("@").strip()
@@ -156,7 +158,9 @@ def profile():
     success = None
     error = None
     if request.method == "POST":
-        twitter = request.form.get("twitter", "").strip()
+        twitter   = request.form.get("twitter", "").strip()
+        instagram = request.form.get("instagram", "").strip()
+        tiktok    = request.form.get("tiktok", "").strip()
         new_password = request.form.get("new_password", "").strip()
         confirm_password = request.form.get("confirm_password", "").strip()
         if new_password and new_password != confirm_password:
@@ -164,7 +168,7 @@ def profile():
         elif new_password and len(new_password) < 6:
             error = "Password must be at least 6 characters."
         else:
-            ok, error = update_profile(handle, twitter, new_password if new_password else None)
+            ok, error = update_profile(handle, twitter, instagram, tiktok, new_password if new_password else None)
             if ok:
                 session["twitter"] = twitter.lstrip("@").strip()
                 success = "Profile updated successfully."
@@ -428,6 +432,16 @@ def api_match(home_team, away_team):
 def api_stats():
     """Public stats endpoint for BetPredict dashboard."""
     return jsonify(get_stats())
+
+
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html", handle=get_handle(), twitter=get_twitter())
+
+
+@app.route("/terms")
+def terms():
+    return render_template("terms.html", handle=get_handle(), twitter=get_twitter())
 
 
 if __name__ == "__main__":

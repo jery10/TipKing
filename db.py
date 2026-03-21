@@ -13,12 +13,10 @@ def get_db() -> Client:
     return _sb
 
 
-def register_user(email, password, username, twitter=""):
+def register_user(email, password, username, twitter="", instagram="", tiktok=""):
     try:
         email = email.lower().strip()
         username = username.lower().strip()
-        twitter = twitter.lstrip("@").strip()
-        # Check uniqueness
         existing_email = get_db().table("users").select("id").eq("email", email).execute()
         if existing_email.data:
             return False, "An account with that email already exists."
@@ -26,10 +24,12 @@ def register_user(email, password, username, twitter=""):
         if existing_user.data:
             return False, "That username is already taken."
         get_db().table("users").insert({
-            "email": email,
+            "email":     email,
             "password_hash": generate_password_hash(password),
-            "username": username,
-            "twitter": twitter,
+            "username":  username,
+            "twitter":   twitter.lstrip("@").strip(),
+            "instagram": instagram.lstrip("@").strip(),
+            "tiktok":    tiktok.lstrip("@").strip(),
         }).execute()
         return True, ""
     except Exception as e:
@@ -59,9 +59,13 @@ def get_user(username):
         return None
 
 
-def update_profile(username, twitter, new_password=None):
+def update_profile(username, twitter="", instagram="", tiktok="", new_password=None):
     try:
-        updates = {"twitter": twitter.lstrip("@").strip()}
+        updates = {
+            "twitter":   twitter.lstrip("@").strip(),
+            "instagram": instagram.lstrip("@").strip(),
+            "tiktok":    tiktok.lstrip("@").strip(),
+        }
         if new_password:
             updates["password_hash"] = generate_password_hash(new_password)
         get_db().table("users").update(updates).eq("username", username).execute()

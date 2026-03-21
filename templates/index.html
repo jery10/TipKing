@@ -7,8 +7,8 @@
 <div class="container" style="padding-top:40px">
 
   <div style="margin-bottom:32px">
-    <div style="font-size:1.6rem;font-weight:900">Welcome back, <span style="color:var(--primary-light)">@{% if twitter %}{{ twitter }}{% else %}{{ handle }}{% endif %}</span> 👑</div>
-    <div style="color:var(--muted);margin-top:4px">Here's what's happening today</div>
+    <div style="font-size:clamp(1.2rem,4vw,1.6rem);font-weight:900">Welcome back, <span style="color:var(--primary-light)">@{% if twitter %}{{ twitter }}{% else %}{{ handle | username }}{% endif %}</span> 👑</div>
+    <div style="color:var(--muted);margin-top:4px;font-size:0.85rem">Here's what's happening today</div>
   </div>
 
   <!-- Personal stats -->

@@ -19,27 +19,18 @@
     <a href="/fixtures" class="{% if request.path == '/fixtures' %}active{% endif %}">Fixtures</a>
     <a href="/leaderboard" class="{% if request.path == '/leaderboard' %}active{% endif %}">Leaderboard</a>
     <a href="/my-tips" class="{% if request.path == '/my-tips' %}active{% endif %}">My Predictions</a>
-    <a href="https://betpredict.streamlit.app" target="_blank" style="color:rgba(255,255,255,0.9)">📊 Stats Model</a>
+    <a href="https://betpredict.streamlit.app" target="_blank" style="color:rgba(255,255,255,0.85)">📊 Stats</a>
   </div>
   <div class="nav-handle">
     {% if handle %}
-      <div class="profile-dropdown">
-        <button class="profile-btn" id="profileBtn" onclick="toggleProfileMenu()">
-          👤 @{% if twitter %}{{ twitter }}{% else %}{{ handle | username }}{% endif %}
-          <span class="chevron">▼</span>
-        </button>
-        <div class="profile-menu" id="profileMenu">
-          <a href="/my-tips">📋 My Predictions</a>
-          <a href="/profile">✏️ Edit Profile</a>
-          <div class="menu-divider"></div>
-          <a href="/leaderboard">🏆 Leaderboard</a>
-          <a href="/fixtures">📅 Fixtures</a>
-          <div class="menu-divider"></div>
-          <a href="/logout" style="color:var(--red)">🚪 Sign Out</a>
-        </div>
-      </div>
+      <button class="profile-icon-btn" onclick="openProfileDrawer()" aria-label="Profile">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+      </button>
     {% else %}
-      <a href="/login" class="btn btn-gold btn-sm" style="background:#fff;color:var(--primary)">Sign In</a>
+      <a href="/login" class="btn btn-sm" style="background:#fff;color:var(--primary);font-weight:700">Sign In</a>
       <a href="/register" class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3)">Register</a>
     {% endif %}
   </div>
@@ -50,27 +41,102 @@
 <!-- Mobile nav -->
 <nav class="mobile-nav">
   <a href="/" class="{% if request.path == '/' %}active{% endif %}">
-    <span class="nav-icon">🏠</span> Home
+    <span class="nav-icon">🏠</span>Home
   </a>
   <a href="/fixtures" class="{% if request.path == '/fixtures' %}active{% endif %}">
-    <span class="nav-icon">📅</span> Fixtures
+    <span class="nav-icon">📅</span>Fixtures
   </a>
   <a href="/leaderboard" class="{% if request.path == '/leaderboard' %}active{% endif %}">
-    <span class="nav-icon">🏆</span> Leaders
+    <span class="nav-icon">🏆</span>Leaders
   </a>
   <a href="/my-tips" class="{% if request.path == '/my-tips' %}active{% endif %}">
-    <span class="nav-icon">📋</span> Mine
+    <span class="nav-icon">📋</span>Mine
   </a>
   {% if handle %}
-  <a href="/logout">
-    <span class="nav-icon">🚪</span> Sign out
+  <a href="#" onclick="event.preventDefault();openProfileDrawer()" class="{% if request.path == '/profile' %}active{% endif %}">
+    <span class="nav-icon">👤</span>Profile
   </a>
   {% else %}
   <a href="/login" class="{% if request.path == '/login' %}active{% endif %}">
-    <span class="nav-icon">👤</span> Sign in
+    <span class="nav-icon">👤</span>Sign in
   </a>
   {% endif %}
 </nav>
+
+<!-- Profile Drawer Overlay -->
+{% if handle %}
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeProfileDrawer()"></div>
+<div class="profile-drawer" id="profileDrawer">
+  <div class="drawer-inner">
+
+    <!-- Header -->
+    <div class="drawer-head">
+      <div class="drawer-avatar">
+        {{ (twitter or handle | username)[0] | upper }}
+      </div>
+      <div class="drawer-user-info">
+        <div class="drawer-username">@{% if twitter %}{{ twitter }}{% else %}{{ handle | username }}{% endif %}</div>
+        <div class="drawer-sub">TipKing member</div>
+      </div>
+      <button class="drawer-close" onclick="closeProfileDrawer()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Links -->
+    <div class="drawer-links">
+      <a href="/my-tips" class="drawer-link">
+        <span class="drawer-link-icon">📋</span>
+        <span>My Predictions</span>
+        <span class="drawer-link-arrow">›</span>
+      </a>
+      <a href="/profile" class="drawer-link">
+        <span class="drawer-link-icon">✏️</span>
+        <span>Edit Profile</span>
+        <span class="drawer-link-arrow">›</span>
+      </a>
+      <a href="/leaderboard" class="drawer-link">
+        <span class="drawer-link-icon">🏆</span>
+        <span>Leaderboard</span>
+        <span class="drawer-link-arrow">›</span>
+      </a>
+      <a href="/fixtures" class="drawer-link">
+        <span class="drawer-link-icon">📅</span>
+        <span>Fixtures</span>
+        <span class="drawer-link-arrow">›</span>
+      </a>
+    </div>
+
+    <div class="drawer-divider"></div>
+
+    <div class="drawer-links">
+      <a href="/privacy" class="drawer-link">
+        <span class="drawer-link-icon">🔒</span>
+        <span>Privacy Policy</span>
+        <span class="drawer-link-arrow">›</span>
+      </a>
+      <a href="/terms" class="drawer-link">
+        <span class="drawer-link-icon">📄</span>
+        <span>Terms of Service</span>
+        <span class="drawer-link-arrow">›</span>
+      </a>
+    </div>
+
+    <div class="drawer-divider"></div>
+
+    <div class="drawer-links">
+      <a href="/logout" class="drawer-link drawer-link-danger">
+        <span class="drawer-link-icon">🚪</span>
+        <span>Sign Out</span>
+      </a>
+    </div>
+
+    <div class="drawer-footer">TipKing · Free predictions, real rewards</div>
+  </div>
+</div>
+{% endif %}
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
@@ -81,27 +147,25 @@
     <a href="/fixtures">Fixtures</a>
     <a href="/leaderboard">Leaderboard</a>
     <a href="/my-tips">My Predictions</a>
-    <a href="https://betpredict.streamlit.app" target="_blank">Stats Model</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
   </div>
-  <div style="margin-top:12px;color:#555">Free to join. Make predictions, get tipped when you're right.</div>
+  <div style="margin-top:10px;color:#444;font-size:0.75rem">Free to join. Make predictions, get tipped when you're right.</div>
 </footer>
 
 <script>
 function openHandleModal() { window.location.href = '/login'; }
 
-function toggleProfileMenu() {
-  const btn = document.getElementById('profileBtn');
-  const menu = document.getElementById('profileMenu');
-  btn.classList.toggle('open');
-  menu.classList.toggle('open');
+function openProfileDrawer() {
+  document.getElementById('profileDrawer')?.classList.add('open');
+  document.getElementById('drawerOverlay')?.classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
-document.addEventListener('click', function(e) {
-  const dropdown = document.querySelector('.profile-dropdown');
-  if (dropdown && !dropdown.contains(e.target)) {
-    document.getElementById('profileBtn')?.classList.remove('open');
-    document.getElementById('profileMenu')?.classList.remove('open');
-  }
-});
+function closeProfileDrawer() {
+  document.getElementById('profileDrawer')?.classList.remove('open');
+  document.getElementById('drawerOverlay')?.classList.remove('open');
+  document.body.style.overflow = '';
+}
 
 function showToast(msg, type='success') {
   const t = document.getElementById('toast');
