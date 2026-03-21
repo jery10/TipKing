@@ -22,7 +22,7 @@
   {% if consensus.total > 0 %}
   <div class="card" style="margin-bottom:24px">
     <div class="card-header">
-      <span style="font-weight:700">👥 What other tipsters think</span>
+      <span style="font-weight:700">👥 What others predicted</span>
       <span style="color:var(--muted);font-size:0.82rem">{{ consensus.total }} prediction{{ 's' if consensus.total != 1 else '' }}</span>
     </div>
     <div class="card-body">
@@ -35,17 +35,17 @@
         <div style="background:rgba(0,200,81,0.07);border:1px solid rgba(0,200,81,0.2);border-radius:10px;padding:14px">
           <div style="font-size:1.6rem;font-weight:900;color:var(--green)">{{ consensus.H }}%</div>
           <div style="font-size:0.78rem;color:var(--muted)">{{ home.split()[0] }} Win</div>
-          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">{{ consensus.h_count }} tips</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">{{ consensus.h_count }} predictions</div>
         </div>
         <div style="background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.2);border-radius:10px;padding:14px">
           <div style="font-size:1.6rem;font-weight:900;color:var(--gold)">{{ consensus.D }}%</div>
           <div style="font-size:0.78rem;color:var(--muted)">Draw</div>
-          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">{{ consensus.d_count }} tips</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">{{ consensus.d_count }} predictions</div>
         </div>
         <div style="background:rgba(255,68,68,0.07);border:1px solid rgba(255,68,68,0.2);border-radius:10px;padding:14px">
           <div style="font-size:1.6rem;font-weight:900;color:var(--red)">{{ consensus.A }}%</div>
           <div style="font-size:0.78rem;color:var(--muted)">{{ away.split()[0] }} Win</div>
-          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">{{ consensus.a_count }} tips</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">{{ consensus.a_count }} predictions</div>
         </div>
       </div>
     </div>
@@ -172,13 +172,13 @@
       <div class="card">
         <div class="card-header">
           <span style="font-weight:700">💬 What others predicted</span>
-          <span style="color:var(--muted);font-size:0.82rem">{{ tips|length }} submitted</span>
+          <span style="color:var(--muted);font-size:0.82rem">{{ tips|length }} prediction{{ 's' if tips|length != 1 else '' }}</span>
         </div>
         <div style="max-height:520px;overflow-y:auto">
           {% if not tips %}
           <div style="padding:32px;text-align:center;color:var(--muted)">
             <div style="font-size:2rem;margin-bottom:10px">🤫</div>
-            Be the first to predict this match
+            No predictions yet — be the first!
           </div>
           {% endif %}
           {% for tip in tips %}
@@ -279,7 +279,7 @@ async function submitTip() {
   });
   const data = await res.json();
   if (data.ok) {
-    showToast('✅ Tip submitted! Good luck 👑', 'success');
+    showToast('✅ Prediction submitted! Good luck 👑', 'success');
     setTimeout(() => location.reload(), 1200);
   } else {
     showToast(data.error || 'Failed to submit — please try again', 'error');

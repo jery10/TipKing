@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
   <div class="page-header">
-    <div class="page-title">📋 My Tips</div>
+    <div class="page-title">📋 My Predictions</div>
     <div class="page-sub">Your prediction history and accuracy</div>
   </div>
 
@@ -27,7 +27,7 @@
   <div class="stats-bar" style="margin-bottom:28px">
     <div class="stat-item">
       <span class="stat-num">{{ tips|length }}</span>
-      <div class="stat-label">Total Tips</div>
+      <div class="stat-label">Predictions</div>
     </div>
     <div class="stat-item">
       <span class="stat-num">{{ tips|selectattr('is_correct', 'ne', None)|list|length }}</span>
@@ -44,7 +44,7 @@
   </div>
 
   <div style="margin-bottom:16px;color:var(--muted);font-size:0.85rem">
-    Showing tips for <strong style="color:var(--primary-light)">{{ handle | username }}</strong>
+    Showing predictions for <strong style="color:var(--primary-light)">{{ handle | username }}</strong>
     <a href="/set-handle" onclick="event.preventDefault();openHandleModal()" style="color:var(--muted);margin-left:8px;font-size:0.8rem">change</a>
   </div>
 

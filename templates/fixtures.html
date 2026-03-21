@@ -4,7 +4,7 @@
 <div class="container">
   <div class="page-header">
     <div class="page-title">📅 Fixtures</div>
-    <div class="page-sub">Pick a match and submit your tip before kickoff</div>
+    <div class="page-sub">Pick a match and make your prediction before kickoff</div>
   </div>
 
   <!-- Competition filter -->
@@ -48,11 +48,11 @@
     </div>
     {% endif %}
     <div class="match-meta" style="margin-top:8px">
-      <span>{{ f.tip_count }} tip{{ 's' if f.tip_count != 1 else '' }}</span>
+      <span>{{ f.tip_count }} prediction{{ 's' if f.tip_count != 1 else '' }}</span>
       {% if f.already_tipped %}
-        <span style="color:var(--green);font-weight:600">✅ Tipped</span>
+        <span style="color:var(--green);font-weight:600">✅ Predicted</span>
       {% else %}
-        <span style="color:var(--gold);font-weight:600">Tip now →</span>
+        <span style="color:var(--primary-light);font-weight:600">Predict →</span>
       {% endif %}
     </div>
   </a>

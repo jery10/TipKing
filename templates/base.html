@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}TipKing — Submit Tips. Win Rewards.{% endblock %}</title>
-  <meta name="description" content="Submit your football predictions on TipKing. The best tipsters get rewarded. Free to join.">
-  <meta property="og:title" content="TipKing — Submit Tips. Win Rewards.">
+  <title>{% block title %}TipKing — Predict. Get Tipped.{% endblock %}</title>
+  <meta name="description" content="Make free football predictions on TipKing. Get tipped when you're right. No bets, no deposits.">
+  <meta property="og:title" content="TipKing — Predict. Get Tipped.">
   <meta property="og:description" content="Submit free football predictions. Win rewards for being right.">
   <meta property="og:type" content="website">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
@@ -18,7 +18,7 @@
   <div class="nav-links">
     <a href="/fixtures" class="{% if request.path == '/fixtures' %}active{% endif %}">Fixtures</a>
     <a href="/leaderboard" class="{% if request.path == '/leaderboard' %}active{% endif %}">Leaderboard</a>
-    <a href="/my-tips" class="{% if request.path == '/my-tips' %}active{% endif %}">My Tips</a>
+    <a href="/my-tips" class="{% if request.path == '/my-tips' %}active{% endif %}">My Predictions</a>
     <a href="https://betpredict.streamlit.app" target="_blank" style="color:rgba(255,255,255,0.9)">📊 Stats Model</a>
   </div>
   <div class="nav-handle">
@@ -44,7 +44,7 @@
     <span class="nav-icon">🏆</span> Leaders
   </a>
   <a href="/my-tips" class="{% if request.path == '/my-tips' %}active{% endif %}">
-    <span class="nav-icon">📋</span> My Tips
+    <span class="nav-icon">📋</span> Mine
   </a>
 </nav>
 
@@ -72,14 +72,14 @@
 <div class="toast" id="toast"></div>
 
 <footer>
-  <div>👑 <strong>TipKing</strong> — Submit Tips. Win Rewards.</div>
+  <div>👑 <strong>TipKing</strong> — Predict. Get Tipped.</div>
   <div class="footer-links">
     <a href="/fixtures">Fixtures</a>
     <a href="/leaderboard">Leaderboard</a>
-    <a href="/my-tips">My Tips</a>
+    <a href="/my-tips">My Predictions</a>
     <a href="https://betpredict.streamlit.app" target="_blank">Stats Model</a>
   </div>
-  <div style="margin-top:12px;color:#555">Free to join. No money required to submit tips.</div>
+  <div style="margin-top:12px;color:#555">Free to join. Make predictions, get tipped when you're right.</div>
 </footer>
 
 <script>

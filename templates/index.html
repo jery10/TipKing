@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}TipKing — Submit Tips. Win Rewards.{% endblock %}
+{% block title %}TipKing — Predict. Get Tipped.{% endblock %}
 {% block content %}
 
 <!-- Hero -->
@@ -7,9 +7,9 @@
   <div class="container">
     <div class="hero-tag">🔥 Free to join · No risk</div>
     <h1>Your Football Knowledge<br>Should <span class="gold">Pay You</span></h1>
-    <p>Submit your match predictions for free. The tipsters who get it right get rewarded. No bets, no deposits — just your football brain.</p>
+    <p>Make free match predictions. Get tipped when you're right. No bets, no deposits — just your football brain.</p>
     <div class="hero-cta">
-      <a href="/fixtures" class="btn btn-gold btn-hero">Submit a Tip 👑</a>
+      <a href="/fixtures" class="btn btn-gold btn-hero">Make a Prediction 👑</a>
       <a href="/leaderboard" class="btn btn-outline btn-hero">View Leaderboard</a>
     </div>
   </div>
@@ -21,7 +21,7 @@
   <div class="stats-bar fade-in">
     <div class="stat-item">
       <span class="stat-num">{{ stats.total }}</span>
-      <div class="stat-label">Tips Submitted</div>
+      <div class="stat-label">Predictions</div>
     </div>
     <div class="stat-item">
       <span class="stat-num">{{ stats.tipsters }}</span>
@@ -33,7 +33,7 @@
     </div>
     <div class="stat-item">
       <span class="stat-num">{{ stats.correct }}</span>
-      <div class="stat-label">Correct Tips</div>
+      <div class="stat-label">Correct</div>
     </div>
   </div>
 
@@ -51,14 +51,14 @@
       <div class="step-card fade-in">
         <div class="step-num">02</div>
         <div class="step-icon">🧠</div>
-        <div class="step-title">Submit Your Tip</div>
+        <div class="step-title">Make Your Prediction</div>
         <div class="step-desc">Predict the result and score. Add your reasoning — injuries, form, anything you know that the stats don't show.</div>
       </div>
       <div class="step-card fade-in">
         <div class="step-num">03</div>
         <div class="step-icon">💰</div>
-        <div class="step-title">Win Rewards</div>
-        <div class="step-desc">Correct tipsters get rewarded after the match. The more confident and accurate you are, the more recognition you get.</div>
+        <div class="step-title">Get Tipped</div>
+        <div class="step-desc">Right predictions get rewarded after the match. The more accurate you are, the bigger the recognition.</div>
       </div>
     </div>
   </section>
@@ -69,7 +69,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div>
         <div class="section-title">Upcoming Matches</div>
-        <div class="section-sub">Tip these matches before kickoff</div>
+        <div class="section-sub">Predict these matches before kickoff</div>
       </div>
       <a href="/fixtures" class="btn btn-outline btn-sm">View All →</a>
     </div>
@@ -95,8 +95,8 @@
       </div>
       {% endif %}
       <div class="match-meta" style="margin-top:8px">
-        <span>{{ f.tip_count }} tip{{ 's' if f.tip_count != 1 else '' }}</span>
-        <span style="color:var(--gold);font-weight:600">Tip now →</span>
+        <span>{{ f.tip_count }} prediction{{ 's' if f.tip_count != 1 else '' }}</span>
+        <span style="color:var(--primary-light);font-weight:600">Predict →</span>
       </div>
     </a>
     {% endfor %}
@@ -109,7 +109,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div>
         <div class="section-title">🏆 Top Tipsters</div>
-        <div class="section-sub">Ranked by accuracy. Minimum 3 settled tips.</div>
+        <div class="section-sub">Ranked by accuracy. Minimum 3 settled predictions.</div>
       </div>
       <a href="/leaderboard" class="btn btn-outline btn-sm">Full Table →</a>
     </div>
@@ -134,7 +134,7 @@
   {% if winners %}
   <section class="section">
     <div class="section-title">🎉 Recent Winners</div>
-    <div class="section-sub">These tipsters called it right</div>
+    <div class="section-sub">These predictors called it right and got tipped</div>
     <div class="winners-grid">
       {% for w in winners %}
       <div class="winner-card fade-in">
