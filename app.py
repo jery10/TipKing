@@ -559,16 +559,33 @@ def admin_settle():
 
 # ── Public API — read by BetPredict ──────────────────────────────────────────
 
+def _fuzzy_match(name, stored):
+    """True if name loosely matches stored — handles 'Liverpool' vs 'Liverpool FC' etc."""
+    a, b = name.lower().strip(), stored.lower().strip()
+    return a == b or a in b or b in a
+
 @app.route("/api/match/<path:home_team>/vs/<path:away_team>")
 def api_match(home_team, away_team):
     """Public endpoint: crowd consensus + reasoning for a match."""
+    # Try exact match first, then fuzzy fallback
     tips = get_tips_for_match(home_team, away_team)
+    if not tips:
+        all_tips = get_all_tips()
+        tips = [t for t in all_tips
+                if _fuzzy_match(home_team, t["home_team"])
+                and _fuzzy_match(away_team, t["away_team"])]
+
     con = consensus(tips)
     pending = [t for t in tips if t.get("is_correct") is None]
     reasons = [t["reasoning"] for t in pending if t.get("reasoning", "").strip()]
+
+    # Safe avg for nullable home_goals/away_goals
+    scored = [t for t in pending if t.get("home_goals") is not None and t.get("away_goals") is not None]
     return jsonify({
         "home": home_team,
         "away": away_team,
+        "matched_home": tips[0]["home_team"] if tips else home_team,
+        "matched_away": tips[0]["away_team"] if tips else away_team,
         "total_predictions": len(tips),
         "pending": len(pending),
         "consensus": {
@@ -577,10 +594,10 @@ def api_match(home_team, away_team):
             "away_win_pct": con["A"],
             "top_pick":     con["top"],
         },
-        "avg_predicted_home": round(sum(t["home_goals"] for t in pending) / len(pending), 2) if pending else None,
-        "avg_predicted_away": round(sum(t["away_goals"] for t in pending) / len(pending), 2) if pending else None,
-        "over_25_pct": round(sum(1 for t in pending if t["home_goals"] + t["away_goals"] > 2.5) / len(pending) * 100) if pending else None,
-        "reasoning": reasons[:10],  # top 10 reasons
+        "avg_predicted_home": round(sum(t["home_goals"] for t in scored) / len(scored), 2) if scored else None,
+        "avg_predicted_away": round(sum(t["away_goals"] for t in scored) / len(scored), 2) if scored else None,
+        "over_25_pct": round(sum(1 for t in scored if t["home_goals"] + t["away_goals"] > 2.5) / len(scored) * 100) if scored else None,
+        "reasoning": reasons[:10],
     })
 
 
