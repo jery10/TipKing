@@ -540,15 +540,17 @@ textarea { resize: vertical; min-height: 80px; }
 .result-option { display: none; }
 .result-label {
   display: block;
-  padding: 14px;
+  padding: 12px 8px;
   border: 2px solid var(--border);
   border-radius: 10px;
   text-align: center;
   cursor: pointer;
   font-weight: 700;
-  font-size: 0.88rem;
+  font-size: clamp(0.72rem, 2.5vw, 0.88rem);
   transition: all 0.15s;
   user-select: none;
+  word-break: break-word;
+  line-height: 1.3;
 }
 .result-option:checked + .result-label {
   border-color: var(--primary);
