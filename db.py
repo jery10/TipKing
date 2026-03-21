@@ -261,6 +261,32 @@ def calculate_payout(tip, actual_home, actual_away):
     return payout, breakdown
 
 
+def vote_tip(tip_id, direction):
+    """Increment upvotes or downvotes. direction: 'up' or 'down'."""
+    try:
+        col = "upvotes" if direction == "up" else "downvotes"
+        tip = get_db().table("tips").select(col).eq("id", tip_id).execute()
+        if not tip.data:
+            return False
+        current = tip.data[0].get(col) or 0
+        get_db().table("tips").update({col: current + 1}).eq("id", tip_id).execute()
+        return True
+    except Exception as e:
+        print(f"vote_tip error: {e}")
+        return False
+
+
+def get_live_tips(limit=30):
+    """Pending tips for upcoming matches, ordered by most voted."""
+    try:
+        res = get_db().table("tips").select("*")\
+            .is_("is_correct", "null")\
+            .order("submitted_at", desc=True).limit(limit).execute()
+        return res.data or []
+    except Exception:
+        return []
+
+
 def mark_result(tip_id, is_correct, actual_home, actual_away):
     try:
         get_db().table("tips").update({

@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from db import (submit_tip, get_tips_for_match, has_tipped, get_my_tips,
                 get_leaderboard, get_all_tips, get_recent_winners, get_stats,
                 mark_result, calculate_payout, register_user, login_user,
-                get_user, update_profile)
+                get_user, update_profile, vote_tip, get_live_tips)
 from fixtures import get_upcoming, COMPETITIONS
 
 load_dotenv()
@@ -391,7 +391,6 @@ def submit():
 @app.route("/leaderboard")
 def leaderboard():
     lb = get_leaderboard()
-    stats = get_stats()
 
     # Pad leaderboard with seed data until we have at least 10 real entries
     real_handles = {r["handle"] for r in lb}
@@ -402,46 +401,35 @@ def leaderboard():
         lb.sort(key=lambda x: (-x["accuracy"], -x["correct"]))
         lb = lb[:10]
 
-    # Build "By Match" view — real tips first, then seed matches padded in
-    all_tips = get_all_tips()
-    matches_map = {}
-    for t in all_tips:
-        key = f"{t['home_team']}|{t['away_team']}"
-        if key not in matches_map:
-            matches_map[key] = {
-                "home": t["home_team"],
-                "away": t["away_team"],
-                "date": t.get("match_date", ""),
-                "tips": [],
-            }
-        tip_data = dict(t)
-        if t.get("actual_home") is not None:
-            tip_data["payout"], _ = calculate_payout(t, t["actual_home"], t["actual_away"])
-        else:
-            tip_data["payout"] = None
-        matches_map[key]["tips"].append(tip_data)
+    # Live predictions feed — pending tips, sorted by votes then recency
+    live = get_live_tips(limit=50)
+    live.sort(key=lambda t: (-(t.get("upvotes") or 0) + (t.get("downvotes") or 0)))
 
-    def _tip_sort(t):
-        if t.get("is_correct") is True: return 0
-        if t.get("is_correct") is None: return 1
-        return 2
-
-    match_list = list(matches_map.values())
-    for m in match_list:
-        m["tips"].sort(key=_tip_sort)
-    match_list.sort(key=lambda m: m["date"] or "", reverse=True)
-
-    # Pad with seed matches if we have fewer than 3 real matches
-    if len(match_list) < 3:
-        for sm in _SEED_MATCHES:
-            match_list.append({
-                "home": sm["home"], "away": sm["away"], "date": sm["date"],
-                "tips": [dict(t, payout=None) for t in sm["tips"]],
-            })
+    # Read voted tip IDs from session so buttons show correct state
+    voted = session.get("voted", {})
 
     return render_template("leaderboard.html",
-        leaderboard=lb, stats=stats, match_list=match_list,
+        leaderboard=lb, live=live, voted=voted,
         handle=get_handle(), twitter=get_twitter())
+
+
+@app.route("/vote", methods=["POST"])
+def vote():
+    data = request.get_json()
+    tip_id = data.get("tip_id")
+    direction = data.get("direction")
+    if not tip_id or direction not in ("up", "down"):
+        return jsonify({"ok": False})
+    # Track voted tips in session to prevent repeat votes
+    voted = session.get("voted", {})
+    key = str(tip_id)
+    if key in voted:
+        return jsonify({"ok": False, "error": "already_voted"})
+    ok = vote_tip(tip_id, direction)
+    if ok:
+        voted[key] = direction
+        session["voted"] = voted
+    return jsonify({"ok": ok})
 
 
 @app.route("/my-tips", methods=["GET", "POST"])
