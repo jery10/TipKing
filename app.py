@@ -375,6 +375,9 @@ def submit():
     if not match_open:
         return jsonify({"ok": False, "error": "Predictions are closed — this match has already started or finished."})
 
+    if has_tipped(handle, home_team, away_team):
+        return jsonify({"ok": False, "error": "You've already made a prediction for this match."})
+
     # Validate — at least one market must be picked
     result = data.get("result_pick") or None
     ou25   = data.get("ou25_pick") or None

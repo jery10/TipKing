@@ -204,8 +204,8 @@ PAYOUTS = {
     "result":      100,
     "exact_score": 1600,
     "ou25":        50,
-    "ou35":        100,
-    "ou45":        150,
+    "ou35":        50,
+    "ou45":        50,
     "goals_range": 200,
     "btts":        200,
 }
