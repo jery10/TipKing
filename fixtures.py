@@ -1,10 +1,11 @@
 import os
 import time
 import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 
 _cache = {"data": None, "ts": 0}
-_CACHE_TTL = 300  # 5 minutes
+_CACHE_TTL = 1800  # 30 minutes
 
 COMPETITIONS = {
     "PL":  {"name": "Premier League",   "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "country": "England"},
@@ -26,8 +27,8 @@ def get_upcoming(days=14):
 
     today = datetime.now().strftime("%Y-%m-%d")
     future = (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d")
-    all_matches = []
-    for comp_code in COMPETITIONS:
+
+    def fetch_comp(comp_code):
         try:
             resp = requests.get(
                 f"https://api.football-data.org/v4/competitions/{comp_code}/matches",
@@ -36,24 +37,33 @@ def get_upcoming(days=14):
                 timeout=10,
             )
             if resp.status_code != 200:
-                continue
+                return []
+            matches = []
             for m in resp.json().get("matches", []):
                 if m.get("status") in ("FINISHED","IN_PLAY","PAUSED","CANCELLED","POSTPONED"):
                     continue
                 dt = datetime.fromisoformat(m["utcDate"].replace("Z", "+00:00")).replace(tzinfo=None)
-                all_matches.append({
-                    "match_id":   m["id"],
+                matches.append({
+                    "match_id":    m["id"],
                     "competition": comp_code,
-                    "comp_name":  COMPETITIONS[comp_code]["name"],
-                    "comp_flag":  COMPETITIONS[comp_code]["flag"],
-                    "date":       dt,
-                    "date_str":   dt.strftime("%a %d %b · %H:%M"),
-                    "date_only":  str(dt.date()),
-                    "home_team":  m["homeTeam"]["name"],
-                    "away_team":  m["awayTeam"]["name"],
+                    "comp_name":   COMPETITIONS[comp_code]["name"],
+                    "comp_flag":   COMPETITIONS[comp_code]["flag"],
+                    "date":        dt,
+                    "date_str":    dt.strftime("%a %d %b · %H:%M"),
+                    "date_only":   str(dt.date()),
+                    "home_team":   m["homeTeam"]["name"],
+                    "away_team":   m["awayTeam"]["name"],
                 })
+            return matches
         except Exception as e:
             print(f"fixtures {comp_code}: {e}")
+            return []
+
+    all_matches = []
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        futures = {pool.submit(fetch_comp, code): code for code in COMPETITIONS}
+        for future in as_completed(futures):
+            all_matches.extend(future.result())
 
     if not all_matches:
         return []

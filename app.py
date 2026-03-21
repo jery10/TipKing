@@ -139,11 +139,20 @@ def index():
         "correct":  raw_stats["correct"]  + 103,
     }
     fixtures = get_upcoming(days=3)[:6]
-    for f in fixtures:
-        tips = get_tips_for_match(f["home_team"], f["away_team"])
-        f["tip_count"] = len(tips)
-        f["consensus"] = consensus(tips)
-        f["already_tipped"] = has_tipped(handle, f["home_team"], f["away_team"]) if handle else False
+    if fixtures:
+        all_tips_batch = get_all_tips()
+        tips_by_match = {}
+        for t in all_tips_batch:
+            key = (t["home_team"], t["away_team"])
+            tips_by_match.setdefault(key, []).append(t)
+        tipped_by_handle = {(t["home_team"], t["away_team"]) for t in all_tips_batch
+                            if handle and t["handle"] == handle} if handle else set()
+        for f in fixtures:
+            key = (f["home_team"], f["away_team"])
+            tips = tips_by_match.get(key, [])
+            f["tip_count"] = len(tips)
+            f["consensus"] = consensus(tips)
+            f["already_tipped"] = key in tipped_by_handle
 
     my_stats = {"total": 0, "correct": 0, "accuracy": 0, "earned": 0}
     recent_tips = []
@@ -298,18 +307,27 @@ def fixtures_page():
     if comp_filter != "all":
         all_fixtures = [f for f in all_fixtures if f["competition"] == comp_filter]
 
-    # Group by date
-    from itertools import groupby
+    # Batch-load all tips once instead of one query per fixture
     grouped = {}
-    for f in all_fixtures:
-        d = str(f["date_only"])
-        if d not in grouped:
-            grouped[d] = {"label": f["date"].strftime("%A, %d %B %Y"), "matches": []}
-        tips = get_tips_for_match(f["home_team"], f["away_team"])
-        f["tip_count"] = len(tips)
-        f["consensus"] = consensus(tips)
-        f["already_tipped"] = has_tipped(get_handle(), f["home_team"], f["away_team"]) if get_handle() else False
-        grouped[d]["matches"].append(f)
+    if all_fixtures:
+        all_tips_batch = get_all_tips()
+        tips_by_match = {}
+        for t in all_tips_batch:
+            key = (t["home_team"], t["away_team"])
+            tips_by_match.setdefault(key, []).append(t)
+        handle_now = get_handle()
+        tipped_by_handle = {(t["home_team"], t["away_team"]) for t in all_tips_batch
+                            if handle_now and t["handle"] == handle_now} if handle_now else set()
+        for f in all_fixtures:
+            d = str(f["date_only"])
+            if d not in grouped:
+                grouped[d] = {"label": f["date"].strftime("%A, %d %B %Y"), "matches": []}
+            key = (f["home_team"], f["away_team"])
+            tips = tips_by_match.get(key, [])
+            f["tip_count"] = len(tips)
+            f["consensus"] = consensus(tips)
+            f["already_tipped"] = key in tipped_by_handle
+            grouped[d]["matches"].append(f)
 
     return render_template("fixtures.html",
         grouped=grouped, competitions=COMPETITIONS,
