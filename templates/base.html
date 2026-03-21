@@ -48,6 +48,15 @@
   <a href="/my-tips" class="{% if request.path == '/my-tips' %}active{% endif %}">
     <span class="nav-icon">📋</span> Mine
   </a>
+  {% if handle %}
+  <a href="/logout">
+    <span class="nav-icon">🚪</span> Sign out
+  </a>
+  {% else %}
+  <a href="/login" class="{% if request.path == '/login' %}active{% endif %}">
+    <span class="nav-icon">👤</span> Sign in
+  </a>
+  {% endif %}
 </nav>
 
 <!-- Toast -->
