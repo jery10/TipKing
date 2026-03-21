@@ -613,6 +613,46 @@ textarea { resize: vertical; min-height: 80px; }
 
 .conf-slider { width: 100%; accent-color: var(--primary); cursor: pointer; }
 
+/* ── Extra market picks ── */
+.market-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.market-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 7px;
+}
+.market-payout {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+.market-btns {
+  display: flex;
+  gap: 6px;
+}
+.mkt-btn {
+  padding: 6px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg3);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.mkt-btn:hover { border-color: var(--primary); color: var(--text); }
+.mkt-btn.mkt-active {
+  border-color: var(--primary);
+  background: rgba(0,130,60,0.15);
+  color: #fff;
+}
+
 .form-step-label {
   font-size: 0.7rem;
   font-weight: 700;

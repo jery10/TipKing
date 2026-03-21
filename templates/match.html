@@ -107,99 +107,122 @@
             <input type="hidden" name="home_team" value="{{ home }}">
             <input type="hidden" name="away_team" value="{{ away }}">
 
-            <!-- Step 1 -->
+            <!-- Step 1: Match Result -->
             <div class="form-group">
-              <div class="form-step-label">Step 1 — Who do you think wins?</div>
+              <div class="form-step-label">Step 1 — Match Result <span style="color:var(--green);font-weight:800">₦200</span></div>
               <div class="result-options">
                 <div>
                   <input type="radio" name="result_pick" id="pick_H" value="H" class="result-option" required>
-                  <label for="pick_H" class="result-label" style="color:var(--green)">🟢 Home Win<br><small style="font-weight:400;font-size:0.75rem">{{ home.split()[0] }}</small></label>
+                  <label for="pick_H" class="result-label" style="color:var(--green)">🟢 Home Win<br><small>{{ home.split()[0] }}</small></label>
                 </div>
                 <div>
                   <input type="radio" name="result_pick" id="pick_D" value="D" class="result-option">
-                  <label for="pick_D" class="result-label" style="color:var(--gold)">🟡 Draw<br><small style="font-weight:400;font-size:0.75rem">Neither wins</small></label>
+                  <label for="pick_D" class="result-label" style="color:var(--gold)">🟡 Draw<br><small>Neither wins</small></label>
                 </div>
                 <div>
                   <input type="radio" name="result_pick" id="pick_A" value="A" class="result-option">
-                  <label for="pick_A" class="result-label" style="color:var(--red)">🔴 Away Win<br><small style="font-weight:400;font-size:0.75rem">{{ away.split()[0] }}</small></label>
+                  <label for="pick_A" class="result-label" style="color:var(--red)">🔴 Away Win<br><small>{{ away.split()[0] }}</small></label>
                 </div>
               </div>
             </div>
 
-            <!-- Step 2 -->
+            <!-- Extra markets under Step 1 -->
             <div class="form-group">
-              <div class="form-step-label">Step 2 — What will the score be?</div>
+              <div class="form-step-label" style="margin-bottom:10px">More markets — pick any or all <span style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></div>
+
+              <!-- Over/Under 2.5 -->
+              <div class="market-row">
+                <div class="market-label">Over/Under 2.5 goals <span class="market-payout">₦50</span></div>
+                <div class="market-btns">
+                  <button type="button" class="mkt-btn" id="ou25_O" onclick="toggleMarket('ou25','O')">Over 2.5</button>
+                  <button type="button" class="mkt-btn" id="ou25_U" onclick="toggleMarket('ou25','U')">Under 2.5</button>
+                </div>
+                <input type="hidden" id="ou25_pick" value="">
+              </div>
+
+              <!-- Over/Under 3.5 -->
+              <div class="market-row">
+                <div class="market-label">Over/Under 3.5 goals <span class="market-payout">₦100</span></div>
+                <div class="market-btns">
+                  <button type="button" class="mkt-btn" id="ou35_O" onclick="toggleMarket('ou35','O')">Over 3.5</button>
+                  <button type="button" class="mkt-btn" id="ou35_U" onclick="toggleMarket('ou35','U')">Under 3.5</button>
+                </div>
+                <input type="hidden" id="ou35_pick" value="">
+              </div>
+
+              <!-- Over/Under 4.5 -->
+              <div class="market-row">
+                <div class="market-label">Over/Under 4.5 goals <span class="market-payout">₦150</span></div>
+                <div class="market-btns">
+                  <button type="button" class="mkt-btn" id="ou45_O" onclick="toggleMarket('ou45','O')">Over 4.5</button>
+                  <button type="button" class="mkt-btn" id="ou45_U" onclick="toggleMarket('ou45','U')">Under 4.5</button>
+                </div>
+                <input type="hidden" id="ou45_pick" value="">
+              </div>
+
+              <!-- Goals Range -->
+              <div class="market-row">
+                <div class="market-label">Goals Range <span class="market-payout">₦200</span></div>
+                <div class="market-btns" style="flex-wrap:wrap">
+                  <button type="button" class="mkt-btn" id="gr_0-1" onclick="toggleMarket('goals_range','0-1')">0–1</button>
+                  <button type="button" class="mkt-btn" id="gr_2-3" onclick="toggleMarket('goals_range','2-3')">2–3</button>
+                  <button type="button" class="mkt-btn" id="gr_4-5" onclick="toggleMarket('goals_range','4-5')">4–5</button>
+                  <button type="button" class="mkt-btn" id="gr_6+" onclick="toggleMarket('goals_range','6+')">6+</button>
+                </div>
+                <input type="hidden" id="goals_range_pick" value="">
+              </div>
+
+              <!-- Both Teams to Score -->
+              <div class="market-row" style="border-bottom:none">
+                <div class="market-label">Both Teams to Score <span class="market-payout">₦200</span></div>
+                <div class="market-btns">
+                  <button type="button" class="mkt-btn" id="btts_Yes" onclick="toggleMarket('btts','Yes')">Yes</button>
+                  <button type="button" class="mkt-btn" id="btts_No"  onclick="toggleMarket('btts','No')">No</button>
+                </div>
+                <input type="hidden" id="btts_pick" value="">
+              </div>
+            </div>
+
+            <!-- Step 2: Score -->
+            <div class="form-group">
+              <div class="form-step-label">Step 2 — Exact Score <span style="color:var(--green);font-weight:800">₦1,600</span></div>
               <div class="score-inputs">
                 <div>
-                  <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:4px">{{ home }}</div>
+                  <div style="font-size:0.7rem;color:var(--muted);text-align:center;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ home }}</div>
                   <input type="number" id="homeGoals" min="0" max="15" value="1" class="score-input">
                 </div>
                 <div class="score-sep">–</div>
                 <div>
-                  <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:4px">{{ away }}</div>
+                  <div style="font-size:0.7rem;color:var(--muted);text-align:center;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ away }}</div>
                   <input type="number" id="awayGoals" min="0" max="15" value="0" class="score-input">
                 </div>
               </div>
-              <div style="font-size:0.78rem;color:var(--muted);margin-top:6px;text-align:center">
-                Your score must match your result (e.g. Home Win = home team scores more)
+              <div style="font-size:0.72rem;color:var(--muted);margin-top:6px;text-align:center">
+                Score must match your result pick above
               </div>
             </div>
 
-            <!-- Step 3 -->
+            <!-- Step 3: Confidence -->
             <div class="form-group">
-              <div class="form-step-label">Step 3 — How confident are you? <span id="confLabel" style="color:var(--primary-light)">3 / 5</span></div>
+              <div class="form-step-label">Step 3 — Confidence <span id="confLabel" style="color:var(--primary-light)">3 / 5</span></div>
               <input type="range" min="1" max="5" value="3" class="conf-slider" id="confSlider">
-              <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);margin-top:4px">
-                <span>Just a guess</span>
-                <span>100% sure</span>
+              <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-top:4px">
+                <span>Just a guess</span><span>100% sure</span>
               </div>
             </div>
 
-            <!-- Optional reasoning -->
+            <!-- Reasoning -->
             <div class="form-group">
               <div class="form-step-label">Your reasoning <span style="font-weight:400;text-transform:none;color:var(--muted)">(optional)</span></div>
-              <textarea id="reasoning" placeholder="Why do you think this? e.g. Home team hasn't lost at home all season, key striker is back from injury..."></textarea>
-            </div>
-
-            <!-- Live prediction preview -->
-            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px">
-              <div style="font-size:0.72rem;font-weight:700;color:var(--primary-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">Your predictions — all 5 markets</div>
-              <div style="display:flex;flex-direction:column;gap:8px">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <span style="font-size:0.8rem;color:var(--muted)">🏆 Match Result</span>
-                  <span id="prev-result" style="font-size:0.8rem;font-weight:700;color:var(--text)">—</span>
-                  <span style="font-size:0.75rem;color:var(--green);font-weight:700">₦400</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <span style="font-size:0.8rem;color:var(--muted)">🎯 Exact Score</span>
-                  <span id="prev-score" style="font-size:0.8rem;font-weight:700;color:var(--text)">—</span>
-                  <span style="font-size:0.75rem;color:var(--green);font-weight:700">₦1,600</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <span style="font-size:0.8rem;color:var(--muted)">📊 Over/Under 2.5</span>
-                  <span id="prev-ou" style="font-size:0.8rem;font-weight:700;color:var(--text)">—</span>
-                  <span style="font-size:0.75rem;color:var(--green);font-weight:700">₦200</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <span style="font-size:0.8rem;color:var(--muted)">⚽ Goals Range</span>
-                  <span id="prev-range" style="font-size:0.8rem;font-weight:700;color:var(--text)">—</span>
-                  <span style="font-size:0.75rem;color:var(--green);font-weight:700">₦300</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <span style="font-size:0.8rem;color:var(--muted)">👥 Both Teams Score</span>
-                  <span id="prev-btts" style="font-size:0.8rem;font-weight:700;color:var(--text)">—</span>
-                  <span style="font-size:0.75rem;color:var(--muted);font-weight:700">Bonus</span>
-                </div>
-              </div>
-              <div style="font-size:0.7rem;color:var(--muted);margin-top:10px;opacity:0.7;border-top:1px solid var(--border);padding-top:8px">Markets update live as you fill in your score above.</div>
+              <textarea id="reasoning" placeholder="e.g. Home team hasn't lost at home all season, key striker is back from injury..."></textarea>
             </div>
 
             <div id="scoreWarning" style="color:var(--red);font-size:0.82rem;margin-bottom:12px;display:none;padding:10px;background:rgba(255,68,68,0.08);border-radius:8px"></div>
 
             <button type="button" class="btn btn-gold" style="width:100%;justify-content:center;font-size:1rem;padding:14px" onclick="submitTip()">
-              Submit My Tip 👑
+              Submit My Prediction 👑
             </button>
-            <div style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:8px">
+            <div style="text-align:center;font-size:0.72rem;color:var(--muted);margin-top:8px">
               Predicting as <strong style="color:var(--primary-light)">@{% if twitter %}{{ twitter }}{% else %}{{ handle | username }}{% endif %}</strong>
             </div>
           </form>
@@ -291,30 +314,26 @@ function validateScore() {
   return true;
 }
 
-function goalsRange(total) {
-  if (total <= 1) return '0–1 goals';
-  if (total <= 3) return '2–3 goals';
-  if (total <= 5) return '4–5 goals';
-  return '6+ goals';
+// Toggle market buttons — clicking same value again deselects it
+function toggleMarket(market, value) {
+  const hidden = document.getElementById(market + '_pick');
+  const prefix = market === 'goals_range' ? 'gr' : market;
+  const activeId = prefix + '_' + value;
+
+  // Deselect all buttons in this market
+  document.querySelectorAll(`[id^="${prefix}_"]`).forEach(b => b.classList.remove('mkt-active'));
+
+  if (hidden.value === value) {
+    hidden.value = ''; // deselect
+  } else {
+    hidden.value = value;
+    document.getElementById(activeId)?.classList.add('mkt-active');
+  }
 }
 
-function updatePreview() {
-  const pick = document.querySelector('input[name="result_pick"]:checked')?.value;
-  const hg = parseInt(document.getElementById('homeGoals')?.value) || 0;
-  const ag = parseInt(document.getElementById('awayGoals')?.value) || 0;
-
-  const resultLabels = { H: 'Home Win', D: 'Draw', A: 'Away Win' };
-  document.getElementById('prev-result').textContent = pick ? resultLabels[pick] : '—';
-  document.getElementById('prev-score').textContent = `${hg} – ${ag}`;
-  document.getElementById('prev-ou').textContent = (hg + ag) > 2.5 ? 'Over 2.5' : 'Under 2.5';
-  document.getElementById('prev-range').textContent = goalsRange(hg + ag);
-  document.getElementById('prev-btts').textContent = (hg > 0 && ag > 0) ? 'Yes' : 'No';
-}
-
-document.querySelectorAll('input[name="result_pick"]').forEach(r => r.addEventListener('change', () => { validateScore(); updatePreview(); }));
-document.getElementById('homeGoals')?.addEventListener('input', () => { validateScore(); updatePreview(); });
-document.getElementById('awayGoals')?.addEventListener('input', () => { validateScore(); updatePreview(); });
-updatePreview();
+document.querySelectorAll('input[name="result_pick"]').forEach(r => r.addEventListener('change', validateScore));
+document.getElementById('homeGoals')?.addEventListener('input', validateScore);
+document.getElementById('awayGoals')?.addEventListener('input', validateScore);
 
 async function submitTip() {
   if (!validateScore()) return;
@@ -329,15 +348,20 @@ async function submitTip() {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
-      home_team: home,
-      away_team: away,
-      competition: '',
-      match_date: '',
-      result_pick: pick,
-      home_goals: parseInt(document.getElementById('homeGoals').value),
-      away_goals: parseInt(document.getElementById('awayGoals').value),
-      confidence: parseInt(document.getElementById('confSlider').value),
-      reasoning: document.getElementById('reasoning').value,
+      home_team:        home,
+      away_team:        away,
+      competition:      '',
+      match_date:       '',
+      result_pick:      pick,
+      home_goals:       parseInt(document.getElementById('homeGoals').value),
+      away_goals:       parseInt(document.getElementById('awayGoals').value),
+      confidence:       parseInt(document.getElementById('confSlider').value),
+      reasoning:        document.getElementById('reasoning').value,
+      ou25_pick:        document.getElementById('ou25_pick').value || null,
+      ou35_pick:        document.getElementById('ou35_pick').value || null,
+      ou45_pick:        document.getElementById('ou45_pick').value || null,
+      goals_range_pick: document.getElementById('goals_range_pick').value || null,
+      btts_pick:        document.getElementById('btts_pick').value || null,
     })
   });
   const data = await res.json();

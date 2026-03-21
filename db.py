@@ -80,19 +80,26 @@ def update_profile(username, twitter="", instagram="", tiktok="",
 
 def submit_tip(handle, competition, home_team, away_team,
                match_date, result_pick, home_goals, away_goals,
-               confidence, reasoning):
+               confidence, reasoning,
+               ou25_pick=None, ou35_pick=None, ou45_pick=None,
+               goals_range_pick=None, btts_pick=None):
     try:
         get_db().table("tips").insert({
-            "handle": handle.lstrip("@").lower().strip(),
-            "competition": competition,
-            "home_team": home_team,
-            "away_team": away_team,
-            "match_date": match_date,
-            "result_pick": result_pick,
-            "home_goals": int(home_goals),
-            "away_goals": int(away_goals),
-            "confidence": int(confidence),
-            "reasoning": reasoning,
+            "handle":           handle.lstrip("@").lower().strip(),
+            "competition":      competition,
+            "home_team":        home_team,
+            "away_team":        away_team,
+            "match_date":       match_date,
+            "result_pick":      result_pick,
+            "home_goals":       int(home_goals),
+            "away_goals":       int(away_goals),
+            "confidence":       int(confidence),
+            "reasoning":        reasoning,
+            "ou25_pick":        ou25_pick or None,
+            "ou35_pick":        ou35_pick or None,
+            "ou45_pick":        ou45_pick or None,
+            "goals_range_pick": goals_range_pick or None,
+            "btts_pick":        btts_pick or None,
         }).execute()
         return True
     except Exception as e:
@@ -189,40 +196,72 @@ def get_stats():
 
 
 PAYOUTS = {
-    "result":      400,   # H/D/A correct
-    "exact_score": 1600,  # exact scoreline correct
-    "over_under":  200,   # over/under 2.5 correct
-    "goals_range": 300,   # goals range correct
+    "result":      200,
+    "exact_score": 1600,
+    "ou25":        50,
+    "ou35":        100,
+    "ou45":        150,
+    "goals_range": 200,
+    "btts":        200,
 }
 
 def _goals_range(total):
-    if total <= 1:  return "0-1"
+    if total <= 1:   return "0-1"
     elif total <= 3: return "2-3"
     elif total <= 5: return "4-5"
-    else:           return "6+"
+    else:            return "6+"
 
 def calculate_payout(tip, actual_home, actual_away):
-    """Calculate total payout in Naira for a settled tip."""
+    """Payout only for markets the user explicitly predicted."""
     actual_result = "H" if actual_home > actual_away else ("A" if actual_away > actual_home else "D")
     ph, pa = int(tip["home_goals"]), int(tip["away_goals"])
+    total_goals = actual_home + actual_away
     payout = 0
     breakdown = {}
 
+    # Match result
     if tip["result_pick"] == actual_result:
         payout += PAYOUTS["result"]
         breakdown["Match Result"] = PAYOUTS["result"]
 
+    # Exact score
     if ph == actual_home and pa == actual_away:
         payout += PAYOUTS["exact_score"]
         breakdown["Exact Score"] = PAYOUTS["exact_score"]
 
-    if (ph + pa > 2.5) == (actual_home + actual_away > 2.5):
-        payout += PAYOUTS["over_under"]
-        breakdown["Over/Under 2.5"] = PAYOUTS["over_under"]
+    # O/U 2.5 — only if user explicitly picked
+    if tip.get("ou25_pick"):
+        correct = "O" if total_goals > 2.5 else "U"
+        if tip["ou25_pick"] == correct:
+            payout += PAYOUTS["ou25"]
+            breakdown["O/U 2.5"] = PAYOUTS["ou25"]
 
-    if _goals_range(ph + pa) == _goals_range(actual_home + actual_away):
-        payout += PAYOUTS["goals_range"]
-        breakdown["Goals Range"] = PAYOUTS["goals_range"]
+    # O/U 3.5 — only if user explicitly picked
+    if tip.get("ou35_pick"):
+        correct = "O" if total_goals > 3.5 else "U"
+        if tip["ou35_pick"] == correct:
+            payout += PAYOUTS["ou35"]
+            breakdown["O/U 3.5"] = PAYOUTS["ou35"]
+
+    # O/U 4.5 — only if user explicitly picked
+    if tip.get("ou45_pick"):
+        correct = "O" if total_goals > 4.5 else "U"
+        if tip["ou45_pick"] == correct:
+            payout += PAYOUTS["ou45"]
+            breakdown["O/U 4.5"] = PAYOUTS["ou45"]
+
+    # Goals range — only if user explicitly picked
+    if tip.get("goals_range_pick"):
+        if _goals_range(total_goals) == tip["goals_range_pick"]:
+            payout += PAYOUTS["goals_range"]
+            breakdown["Goals Range"] = PAYOUTS["goals_range"]
+
+    # BTTS — only if user explicitly picked
+    if tip.get("btts_pick"):
+        actual_btts = "Yes" if actual_home > 0 and actual_away > 0 else "No"
+        if tip["btts_pick"] == actual_btts:
+            payout += PAYOUTS["btts"]
+            breakdown["BTTS"] = PAYOUTS["btts"]
 
     return payout, breakdown
 

@@ -33,24 +33,24 @@
       </div>
     </div>
 
-    <!-- Edit form -->
-    <div class="card">
+    <!-- Edit profile form -->
+    <div class="card" style="margin-bottom:20px">
       <div class="card-header"><span style="font-weight:700">✏️ Edit Profile</span></div>
       <div class="card-body">
 
-        {% if success %}
+        {% if success == 'profile' %}
         <div style="background:rgba(0,200,81,0.1);border:1px solid rgba(0,200,81,0.3);color:var(--green);padding:12px 16px;border-radius:8px;font-size:0.88rem;margin-bottom:20px">
-          ✅ {{ success }}
+          ✅ Profile updated successfully.
         </div>
         {% endif %}
-
-        {% if error %}
+        {% if error and form_type == 'profile' %}
         <div style="background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);color:var(--red);padding:12px 16px;border-radius:8px;font-size:0.88rem;margin-bottom:20px">
           ⚠️ {{ error }}
         </div>
         {% endif %}
 
         <form method="POST">
+          <input type="hidden" name="form_type" value="profile">
 
           <div style="font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:14px">Social Accounts</div>
 
@@ -87,25 +87,6 @@
           <div style="font-size:0.72rem;color:var(--muted);margin-bottom:20px">Shown on leaderboard so other predictors can follow you.</div>
 
           <div style="margin:24px 0 16px;border-top:1px solid var(--border);padding-top:20px">
-            <div style="font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">Payout Details</div>
-            <div style="font-size:0.72rem;color:var(--muted);margin-bottom:14px">Where we send your tips when you win. Only visible to you and admins.</div>
-          </div>
-
-          <div class="form-group">
-            <label>Bank Name</label>
-            <input type="text" name="bank_name" placeholder="e.g. GTBank, First Bank, Opay"
-                   value="{{ user.bank_name if user and user.bank_name else '' }}">
-          </div>
-
-          <div class="form-group">
-            <label>Account Number</label>
-            <input type="text" name="bank_account" placeholder="10-digit account number"
-                   maxlength="10" pattern="[0-9]{10}"
-                   value="{{ user.bank_account if user and user.bank_account else '' }}">
-            <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Nigerian bank account number (10 digits).</div>
-          </div>
-
-          <div style="margin:24px 0 16px;border-top:1px solid var(--border);padding-top:20px">
             <div style="font-weight:700;margin-bottom:16px">Change Password <span style="color:var(--muted);font-weight:400;font-size:0.85rem">(leave blank to keep current)</span></div>
           </div>
 
@@ -121,6 +102,69 @@
 
           <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;padding:14px;font-size:1rem">
             Save Changes
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Payout details — separate card below edit profile -->
+    <div class="card">
+      <div class="card-header">
+        <span style="font-weight:700">🏦 Payout Details</span>
+        <span style="font-size:0.75rem;color:var(--muted);font-weight:400;margin-left:8px">only visible to you</span>
+      </div>
+      <div class="card-body">
+
+        {% if success == 'payout' %}
+        <div style="background:rgba(0,200,81,0.1);border:1px solid rgba(0,200,81,0.3);color:var(--green);padding:12px 16px;border-radius:8px;font-size:0.88rem;margin-bottom:20px">
+          ✅ Payout details saved.
+        </div>
+        {% endif %}
+        {% if error and form_type == 'payout' %}
+        <div style="background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);color:var(--red);padding:12px 16px;border-radius:8px;font-size:0.88rem;margin-bottom:20px">
+          ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Current values display -->
+        {% if user and (user.bank_name or user.bank_account) %}
+        <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;margin-bottom:20px;display:grid;gap:10px">
+          {% if user.bank_name %}
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="color:var(--muted);font-size:0.85rem">Bank</span>
+            <span style="font-weight:700">{{ user.bank_name }}</span>
+          </div>
+          {% endif %}
+          {% if user.bank_account %}
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="color:var(--muted);font-size:0.85rem">Account Number</span>
+            <span style="font-weight:700;font-family:monospace;letter-spacing:1px">{{ user.bank_account }}</span>
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div style="color:var(--muted);font-size:0.85rem;margin-bottom:16px">No payout details saved yet. Add your bank details so we can pay you when you win!</div>
+        {% endif %}
+
+        <form method="POST">
+          <input type="hidden" name="form_type" value="payout">
+
+          <div class="form-group">
+            <label>Bank Name</label>
+            <input type="text" name="bank_name" placeholder="e.g. GTBank, First Bank, Opay"
+                   value="{{ user.bank_name if user and user.bank_name else '' }}">
+          </div>
+
+          <div class="form-group">
+            <label>Account Number</label>
+            <input type="text" name="bank_account" placeholder="10-digit account number"
+                   maxlength="10" pattern="[0-9]{10}"
+                   value="{{ user.bank_account if user and user.bank_account else '' }}">
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Nigerian bank account number (10 digits).</div>
+          </div>
+
+          <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;padding:14px;font-size:1rem">
+            Save Payout Details
           </button>
         </form>
       </div>

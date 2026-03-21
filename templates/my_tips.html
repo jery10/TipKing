@@ -93,24 +93,56 @@
       </div>
     </div>
 
-    {# Settled breakdown #}
+    {# Settled breakdown — only show markets the user explicitly predicted #}
     {% if tip.actual_home is not none %}
     {% set ah = tip.actual_home %}
     {% set aa = tip.actual_away %}
-    {% set actual_result = 'H' if ah > aa else ('A' if aa > ah else 'D') %}
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
-      <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:{% if tip.result_pick == actual_result %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
-        Result {% if tip.result_pick == actual_result %}✓ +₦400{% else %}✗{% endif %}
+    {% set ar = 'H' if ah > aa else ('A' if aa > ah else 'D') %}
+    {% set tg = ah + aa %}
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">
+      {# Result — always shown #}
+      <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:{% if tip.result_pick == ar %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
+        Result {% if tip.result_pick == ar %}✓ +₦200{% else %}✗{% endif %}
       </span>
-      <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:{% if tip.home_goals == ah and tip.away_goals == aa %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
-        Exact Score {% if tip.home_goals == ah and tip.away_goals == aa %}✓ +₦1,600{% else %}✗{% endif %}
+      {# Exact score — always shown #}
+      <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:{% if tip.home_goals == ah and tip.away_goals == aa %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
+        Score {% if tip.home_goals == ah and tip.away_goals == aa %}✓ +₦1,600{% else %}✗{% endif %}
       </span>
-      <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:{% if (tip.home_goals + tip.away_goals > 2.5) == (ah + aa > 2.5) %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
-        O/U 2.5 {% if (tip.home_goals + tip.away_goals > 2.5) == (ah + aa > 2.5) %}✓ +₦200{% else %}✗{% endif %}
+      {# O/U 2.5 — only if user picked #}
+      {% if tip.ou25_pick %}
+      {% set correct_ou25 = 'O' if tg > 2.5 else 'U' %}
+      <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:{% if tip.ou25_pick == correct_ou25 %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
+        O/U 2.5 ({{ 'Over' if tip.ou25_pick == 'O' else 'Under' }}) {% if tip.ou25_pick == correct_ou25 %}✓ +₦50{% else %}✗{% endif %}
       </span>
-      <span style="font-size:0.72rem;padding:2px 8px;border-radius:12px;background:{% if tip.home_goals + tip.away_goals <= 1 and ah + aa <= 1 or (2 <= tip.home_goals + tip.away_goals <= 3 and 2 <= ah + aa <= 3) or (4 <= tip.home_goals + tip.away_goals <= 5 and 4 <= ah + aa <= 5) or (tip.home_goals + tip.away_goals >= 6 and ah + aa >= 6) %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
-        Goals Range {% if tip.home_goals + tip.away_goals <= 1 and ah + aa <= 1 or (2 <= tip.home_goals + tip.away_goals <= 3 and 2 <= ah + aa <= 3) or (4 <= tip.home_goals + tip.away_goals <= 5 and 4 <= ah + aa <= 5) or (tip.home_goals + tip.away_goals >= 6 and ah + aa >= 6) %}✓ +₦300{% else %}✗{% endif %}
+      {% endif %}
+      {# O/U 3.5 #}
+      {% if tip.ou35_pick %}
+      {% set correct_ou35 = 'O' if tg > 3.5 else 'U' %}
+      <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:{% if tip.ou35_pick == correct_ou35 %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
+        O/U 3.5 ({{ 'Over' if tip.ou35_pick == 'O' else 'Under' }}) {% if tip.ou35_pick == correct_ou35 %}✓ +₦100{% else %}✗{% endif %}
       </span>
+      {% endif %}
+      {# O/U 4.5 #}
+      {% if tip.ou45_pick %}
+      {% set correct_ou45 = 'O' if tg > 4.5 else 'U' %}
+      <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:{% if tip.ou45_pick == correct_ou45 %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
+        O/U 4.5 ({{ 'Over' if tip.ou45_pick == 'O' else 'Under' }}) {% if tip.ou45_pick == correct_ou45 %}✓ +₦150{% else %}✗{% endif %}
+      </span>
+      {% endif %}
+      {# Goals range #}
+      {% if tip.goals_range_pick %}
+      {% set correct_gr = '0-1' if tg <= 1 else ('2-3' if tg <= 3 else ('4-5' if tg <= 5 else '6+')) %}
+      <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:{% if tip.goals_range_pick == correct_gr %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
+        Range {{ tip.goals_range_pick }} {% if tip.goals_range_pick == correct_gr %}✓ +₦200{% else %}✗{% endif %}
+      </span>
+      {% endif %}
+      {# BTTS #}
+      {% if tip.btts_pick %}
+      {% set correct_btts = 'Yes' if ah > 0 and aa > 0 else 'No' %}
+      <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:{% if tip.btts_pick == correct_btts %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
+        BTTS {{ tip.btts_pick }} {% if tip.btts_pick == correct_btts %}✓ +₦200{% else %}✗{% endif %}
+      </span>
+      {% endif %}
     </div>
     {% endif %}
 

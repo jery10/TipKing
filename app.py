@@ -244,28 +244,48 @@ def profile():
     user = get_user(handle)
     success = None
     error = None
+    form_type = None
     if request.method == "POST":
-        twitter      = request.form.get("twitter", "").strip()
-        instagram    = request.form.get("instagram", "").strip()
-        tiktok       = request.form.get("tiktok", "").strip()
-        bank_name    = request.form.get("bank_name", "").strip()
-        bank_account = request.form.get("bank_account", "").strip()
-        new_password = request.form.get("new_password", "").strip()
-        confirm_password = request.form.get("confirm_password", "").strip()
-        if new_password and new_password != confirm_password:
-            error = "Passwords don't match."
-        elif new_password and len(new_password) < 6:
-            error = "Password must be at least 6 characters."
-        else:
-            ok, error = update_profile(handle, twitter, instagram, tiktok,
-                                       bank_name, bank_account,
-                                       new_password if new_password else None)
+        form_type = request.form.get("form_type", "profile")
+        if form_type == "payout":
+            bank_name    = request.form.get("bank_name", "").strip()
+            bank_account = request.form.get("bank_account", "").strip()
+            existing = user or {}
+            ok, error = update_profile(
+                handle,
+                twitter=existing.get("twitter", ""),
+                instagram=existing.get("instagram", ""),
+                tiktok=existing.get("tiktok", ""),
+                bank_name=bank_name,
+                bank_account=bank_account,
+            )
             if ok:
-                session["twitter"] = twitter.lstrip("@").strip()
-                success = "Profile updated successfully."
-                user = get_user(handle)  # refresh
+                success = "payout"
+                user = get_user(handle)
+        else:
+            twitter      = request.form.get("twitter", "").strip()
+            instagram    = request.form.get("instagram", "").strip()
+            tiktok       = request.form.get("tiktok", "").strip()
+            new_password = request.form.get("new_password", "").strip()
+            confirm_password = request.form.get("confirm_password", "").strip()
+            if new_password and new_password != confirm_password:
+                error = "Passwords don't match."
+            elif new_password and len(new_password) < 6:
+                error = "Password must be at least 6 characters."
+            else:
+                existing = user or {}
+                ok, error = update_profile(
+                    handle, twitter, instagram, tiktok,
+                    bank_name=existing.get("bank_name", ""),
+                    bank_account=existing.get("bank_account", ""),
+                    new_password=new_password if new_password else None,
+                )
+                if ok:
+                    session["twitter"] = twitter.lstrip("@").strip()
+                    success = "profile"
+                    user = get_user(handle)
     return render_template("profile.html",
-        user=user, success=success, error=error,
+        user=user, success=success, error=error, form_type=form_type,
         handle=handle, twitter=get_twitter())
 
 
@@ -365,6 +385,11 @@ def submit():
         away_goals=ag,
         confidence=data.get("confidence", 3),
         reasoning=data.get("reasoning", ""),
+        ou25_pick=data.get("ou25_pick") or None,
+        ou35_pick=data.get("ou35_pick") or None,
+        ou45_pick=data.get("ou45_pick") or None,
+        goals_range_pick=data.get("goals_range_pick") or None,
+        btts_pick=data.get("btts_pick") or None,
     )
     return jsonify({"ok": ok})
 
