@@ -10,15 +10,15 @@
   {% if not handle %}
   <div style="text-align:center;padding:60px 20px">
     <div style="font-size:3rem;margin-bottom:16px">👤</div>
-    <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px">Enter your Twitter handle</div>
-    <div style="color:var(--muted);margin-bottom:24px">Set your handle to view your tip history</div>
-    <button class="btn btn-gold btn-hero" onclick="openHandleModal()">Set Handle →</button>
+    <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px">Sign in to see your tips</div>
+    <div style="color:var(--muted);margin-bottom:24px">Enter your email to view your prediction history</div>
+    <button class="btn btn-gold btn-hero" onclick="openHandleModal()">Enter Email →</button>
   </div>
   {% elif not tips %}
   <div style="text-align:center;padding:60px 20px">
     <div style="font-size:3rem;margin-bottom:16px">📭</div>
-    <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px">No tips yet, @{{ handle }}</div>
-    <div style="color:var(--muted);margin-bottom:24px">Go submit your first tip!</div>
+    <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px">No predictions yet, {{ handle | username }}</div>
+    <div style="color:var(--muted);margin-bottom:24px">Pick a match and make your first prediction!</div>
     <a href="/fixtures" class="btn btn-gold btn-hero">Browse Fixtures →</a>
   </div>
   {% else %}
@@ -44,7 +44,7 @@
   </div>
 
   <div style="margin-bottom:16px;color:var(--muted);font-size:0.85rem">
-    Showing tips for <strong style="color:var(--gold)">@{{ handle }}</strong>
+    Showing tips for <strong style="color:var(--primary-light)">{{ handle | username }}</strong>
     <a href="/set-handle" onclick="event.preventDefault();openHandleModal()" style="color:var(--muted);margin-left:8px;font-size:0.8rem">change</a>
   </div>
 

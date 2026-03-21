@@ -32,7 +32,7 @@
     <div style="font-size:3rem;margin-bottom:16px">🏆</div>
     <div style="font-size:1.1rem;font-weight:600">No settled tips yet</div>
     <div style="margin-top:8px">Check back after matches are played</div>
-    <a href="/fixtures" class="btn btn-gold" style="margin-top:20px;display:inline-flex">Submit a Tip →</a>
+    <a href="/fixtures" class="btn btn-gold" style="margin-top:20px;display:inline-flex">Make a Prediction →</a>
   </div>
   {% else %}
   <div class="card">
@@ -42,7 +42,7 @@
         {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
       </div>
       <div>
-        <div class="lb-handle">@{{ row.handle }}</div>
+        <div class="lb-handle">{{ row.handle | username }}</div>
         <div style="font-size:0.75rem;color:var(--muted)">{{ row.correct }}/{{ row.tips }} correct</div>
       </div>
       <div style="flex:1"></div>
@@ -53,7 +53,7 @@
   {% endif %}
 
   <div style="text-align:center;margin-top:32px">
-    <a href="/fixtures" class="btn btn-gold">Submit a Tip 👑</a>
+    <a href="/fixtures" class="btn btn-gold">Make a Prediction 👑</a>
   </div>
 </div>
 {% endblock %}

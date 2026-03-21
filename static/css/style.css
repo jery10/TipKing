@@ -1,14 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
+  --primary: #00823C;
+  --primary-dark: #006830;
+  --primary-light: #00a651;
   --gold: #FFD700;
   --gold-dark: #e6c200;
-  --bg: #080808;
-  --bg2: #111111;
-  --bg3: #1a1a1a;
-  --border: #2a2a2a;
+  --bg: #0a0f0a;
+  --bg2: #111611;
+  --bg3: #171f17;
+  --border: #1e2c1e;
   --text: #ffffff;
-  --muted: #888888;
+  --muted: #7a8a7a;
   --green: #00C851;
   --red: #ff4444;
   --blue: #4a9eff;
@@ -29,9 +32,8 @@ img { max-width: 100%; }
 
 /* ── Nav ── */
 nav {
-  background: rgba(8,8,8,0.95);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  background: var(--primary);
+  border-bottom: none;
   padding: 0 24px;
   position: sticky;
   top: 0;
@@ -45,14 +47,14 @@ nav {
 .nav-logo {
   font-size: 1.4rem;
   font-weight: 900;
-  color: var(--gold);
+  color: #fff;
   letter-spacing: -0.5px;
 }
-.nav-logo span { color: var(--text); }
+.nav-logo span { color: rgba(255,255,255,0.7); }
 
 .nav-links {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   align-items: center;
 }
 
@@ -61,12 +63,12 @@ nav {
   border-radius: 8px;
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--muted);
+  color: rgba(255,255,255,0.75);
   transition: all 0.15s;
 }
 .nav-links a:hover, .nav-links a.active {
-  color: var(--text);
-  background: var(--bg3);
+  color: #fff;
+  background: rgba(255,255,255,0.12);
 }
 
 .nav-handle {
@@ -76,13 +78,13 @@ nav {
 }
 
 .handle-badge {
-  background: var(--bg3);
-  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
   border-radius: 20px;
   padding: 6px 14px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--gold);
+  color: #fff;
 }
 
 .btn {
@@ -98,17 +100,17 @@ nav {
   transition: all 0.15s;
 }
 .btn-gold {
-  background: var(--gold);
-  color: #000;
+  background: var(--primary);
+  color: #fff;
 }
-.btn-gold:hover { background: var(--gold-dark); transform: translateY(-1px); }
+.btn-gold:hover { background: var(--primary-dark); transform: translateY(-1px); }
 
 .btn-outline {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text);
 }
-.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
 
 .btn-sm { padding: 7px 14px; font-size: 0.82rem; }
 
@@ -145,15 +147,15 @@ nav {
   transform: translateX(-50%);
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(255,215,0,0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(0,130,60,0.1) 0%, transparent 70%);
   pointer-events: none;
 }
 
 .hero-tag {
   display: inline-block;
-  background: rgba(255,215,0,0.1);
-  border: 1px solid rgba(255,215,0,0.3);
-  color: var(--gold);
+  background: rgba(0,130,60,0.12);
+  border: 1px solid rgba(0,130,60,0.35);
+  color: var(--primary-light);
   font-size: 0.82rem;
   font-weight: 700;
   padding: 6px 14px;
@@ -171,7 +173,7 @@ nav {
   letter-spacing: -1px;
 }
 
-.hero h1 .gold { color: var(--gold); }
+.hero h1 .gold { color: var(--primary-light); }
 
 .hero p {
   font-size: 1.1rem;
@@ -215,7 +217,7 @@ nav {
 .stat-num {
   font-size: 2rem;
   font-weight: 900;
-  color: var(--gold);
+  color: var(--primary-light);
   display: block;
 }
 .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
@@ -249,13 +251,13 @@ nav {
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--gold), transparent);
+  background: linear-gradient(90deg, var(--primary), transparent);
 }
 
 .step-num {
   font-size: 2.5rem;
   font-weight: 900;
-  color: rgba(255,215,0,0.15);
+  color: rgba(0,130,60,0.18);
   line-height: 1;
   margin-bottom: 12px;
 }
@@ -271,7 +273,7 @@ nav {
   overflow: hidden;
   transition: border-color 0.2s, transform 0.15s;
 }
-.card:hover { border-color: rgba(255,215,0,0.3); }
+.card:hover { border-color: rgba(0,130,60,0.3); }
 
 .card-header {
   padding: 16px 20px;
@@ -293,7 +295,7 @@ nav {
   display: block;
 }
 .match-card:hover {
-  border-color: rgba(255,215,0,0.4);
+  border-color: rgba(0,130,60,0.4);
   transform: translateY(-2px);
   background: var(--bg3);
 }
@@ -301,7 +303,7 @@ nav {
 .match-comp {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--gold);
+  color: var(--primary-light);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 10px;
@@ -418,7 +420,7 @@ nav {
 .lb-accuracy {
   font-size: 1rem;
   font-weight: 800;
-  color: var(--gold);
+  color: var(--primary-light);
   min-width: 52px;
   text-align: right;
 }
@@ -443,7 +445,7 @@ nav {
   margin-bottom: 6px;
   flex-wrap: wrap;
 }
-.tip-handle { font-weight: 700; font-size: 0.9rem; }
+.tip-handle { font-weight: 700; font-size: 0.9rem; color: var(--primary-light); }
 .tip-reasoning { font-size: 0.82rem; color: var(--muted); margin-top: 6px; font-style: italic; }
 .tip-stars { color: var(--gold); font-size: 0.8rem; letter-spacing: -1px; }
 
@@ -459,7 +461,7 @@ label {
   letter-spacing: 0.4px;
 }
 
-input[type="text"], input[type="number"], input[type="password"], textarea, select {
+input[type="text"], input[type="email"], input[type="number"], input[type="password"], textarea, select {
   width: 100%;
   background: var(--bg3);
   border: 1px solid var(--border);
@@ -473,7 +475,7 @@ input[type="text"], input[type="number"], input[type="password"], textarea, sele
 }
 input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: var(--gold);
+  border-color: var(--primary);
 }
 textarea { resize: vertical; min-height: 80px; }
 
@@ -496,18 +498,28 @@ textarea { resize: vertical; min-height: 80px; }
   user-select: none;
 }
 .result-option:checked + .result-label {
-  border-color: var(--gold);
-  background: rgba(255,215,0,0.1);
-  color: var(--gold);
+  border-color: var(--primary);
+  background: rgba(0,130,60,0.12);
+  color: #fff;
 }
 
 .score-inputs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; }
 .score-sep { text-align: center; font-weight: 800; color: var(--muted); font-size: 1.2rem; }
 .score-input { text-align: center; font-size: 1.4rem; font-weight: 800; }
 
-.conf-slider { width: 100%; accent-color: var(--gold); cursor: pointer; }
+.conf-slider { width: 100%; accent-color: var(--primary); cursor: pointer; }
 
-/* ── Handle modal ── */
+/* ── Step labels in tip form ── */
+.form-step-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+/* ── Email modal ── */
 .handle-modal {
   position: fixed;
   inset: 0;
@@ -523,6 +535,7 @@ textarea { resize: vertical; min-height: 80px; }
 .modal-box {
   background: var(--bg2);
   border: 1px solid var(--border);
+  border-top: 3px solid var(--primary);
   border-radius: 20px;
   padding: 36px;
   max-width: 420px;
@@ -547,7 +560,7 @@ textarea { resize: vertical; min-height: 80px; }
   padding: 16px;
   text-align: center;
 }
-.winner-handle { font-weight: 800; font-size: 0.95rem; color: var(--gold); }
+.winner-handle { font-weight: 800; font-size: 0.95rem; color: var(--primary-light); }
 .winner-match { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
 .winner-pick { margin-top: 8px; }
 
@@ -580,7 +593,7 @@ footer {
   font-size: 0.82rem;
   margin-top: 80px;
 }
-footer a { color: var(--gold); }
+footer a { color: var(--primary-light); }
 .footer-links { display: flex; gap: 20px; justify-content: center; margin-top: 8px; }
 
 /* ── Date header ── */
@@ -629,7 +642,7 @@ footer a { color: var(--gold); }
   background: var(--bg3);
   color: var(--text);
 }
-.tab-btn.active { color: var(--gold); }
+.tab-btn.active { color: var(--primary-light); }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
@@ -656,7 +669,7 @@ footer a { color: var(--gold); }
     align-items: center;
     gap: 3px;
   }
-  .mobile-nav a.active { color: var(--gold); }
+  .mobile-nav a.active { color: var(--primary-light); }
   .mobile-nav .nav-icon { font-size: 1.2rem; }
   body { padding-bottom: 70px; }
   .hero { padding: 48px 20px 40px; }
@@ -676,3 +689,13 @@ footer a { color: var(--gold); }
 .fade-in { animation: fadeIn 0.3s ease forwards; }
 
 .section { padding: 0 0 64px; }
+
+/* ── Match page two-col layout ── */
+.match-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 768px) {
+  .match-layout { grid-template-columns: 1fr; }
+}

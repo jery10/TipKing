@@ -8,7 +8,7 @@
 
   <!-- Match header -->
   <div style="text-align:center;padding:36px 0 28px">
-    <div style="font-size:0.82rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">
+    <div style="font-size:0.82rem;font-weight:700;color:var(--primary-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">
       Match Preview
     </div>
     <div style="display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap">
@@ -22,8 +22,8 @@
   {% if consensus.total > 0 %}
   <div class="card" style="margin-bottom:24px">
     <div class="card-header">
-      <span style="font-weight:700">👥 Crowd Consensus</span>
-      <span style="color:var(--muted);font-size:0.82rem">{{ consensus.total }} tip{{ 's' if consensus.total != 1 else '' }}</span>
+      <span style="font-weight:700">👥 What other tipsters think</span>
+      <span style="color:var(--muted);font-size:0.82rem">{{ consensus.total }} prediction{{ 's' if consensus.total != 1 else '' }}</span>
     </div>
     <div class="card-body">
       <div class="consensus" style="height:12px;border-radius:6px;margin-bottom:12px">
@@ -52,13 +52,14 @@
   </div>
   {% endif %}
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+  <!-- Two-column layout — stacks on mobile -->
+  <div class="match-layout">
 
     <!-- Submit form -->
     <div>
       {% if already and my_tip %}
       <div class="card">
-        <div class="card-header"><span style="font-weight:700">✅ Your Tip</span></div>
+        <div class="card-header"><span style="font-weight:700">✅ Your Prediction</span></div>
         <div class="card-body">
           <div style="text-align:center;padding:12px 0">
             <span class="pill pill-{{ my_tip.result_pick }}" style="font-size:1rem;padding:8px 20px">
@@ -76,70 +77,89 @@
       </div>
       {% else %}
       <div class="card">
-        <div class="card-header"><span style="font-weight:700">👑 Submit Your Tip</span></div>
+        <div class="card-header">
+          <span style="font-weight:700">👑 Make Your Prediction</span>
+          <span style="font-size:0.78rem;color:var(--muted)">Free · Takes 30 seconds</span>
+        </div>
         <div class="card-body">
           {% if not handle %}
           <div style="text-align:center;padding:20px">
-            <div style="font-size:2rem;margin-bottom:12px">👤</div>
-            <div style="font-weight:600;margin-bottom:8px">Set your handle first</div>
-            <div style="color:var(--muted);font-size:0.85rem;margin-bottom:20px">Enter your Twitter handle to submit tips</div>
-            <button class="btn btn-gold" onclick="openHandleModal()">Set Handle →</button>
+            <div style="font-size:2rem;margin-bottom:12px">📧</div>
+            <div style="font-weight:700;margin-bottom:8px">Sign in first</div>
+            <div style="color:var(--muted);font-size:0.88rem;margin-bottom:20px;line-height:1.5">
+              Just enter your email — no password needed.<br>
+              We use it to credit you when you're right.
+            </div>
+            <button class="btn btn-gold" onclick="openHandleModal()">Enter Email →</button>
           </div>
           {% else %}
           <form id="tipForm">
             <input type="hidden" name="home_team" value="{{ home }}">
             <input type="hidden" name="away_team" value="{{ away }}">
 
+            <!-- Step 1 -->
             <div class="form-group">
-              <label>Your Prediction</label>
+              <div class="form-step-label">Step 1 — Who do you think wins?</div>
               <div class="result-options">
                 <div>
                   <input type="radio" name="result_pick" id="pick_H" value="H" class="result-option" required>
-                  <label for="pick_H" class="result-label" style="color:var(--green)">🟢 Home Win</label>
+                  <label for="pick_H" class="result-label" style="color:var(--green)">🟢 Home Win<br><small style="font-weight:400;font-size:0.75rem">{{ home.split()[0] }}</small></label>
                 </div>
                 <div>
                   <input type="radio" name="result_pick" id="pick_D" value="D" class="result-option">
-                  <label for="pick_D" class="result-label" style="color:var(--gold)">🟡 Draw</label>
+                  <label for="pick_D" class="result-label" style="color:var(--gold)">🟡 Draw<br><small style="font-weight:400;font-size:0.75rem">Neither wins</small></label>
                 </div>
                 <div>
                   <input type="radio" name="result_pick" id="pick_A" value="A" class="result-option">
-                  <label for="pick_A" class="result-label" style="color:var(--red)">🔴 Away Win</label>
+                  <label for="pick_A" class="result-label" style="color:var(--red)">🔴 Away Win<br><small style="font-weight:400;font-size:0.75rem">{{ away.split()[0] }}</small></label>
                 </div>
               </div>
             </div>
 
+            <!-- Step 2 -->
             <div class="form-group">
-              <label>Predicted Score</label>
+              <div class="form-step-label">Step 2 — What will the score be?</div>
               <div class="score-inputs">
-                <input type="number" id="homeGoals" min="0" max="15" value="1" class="score-input" placeholder="{{ home.split()[0] }}">
+                <div>
+                  <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:4px">{{ home }}</div>
+                  <input type="number" id="homeGoals" min="0" max="15" value="1" class="score-input">
+                </div>
                 <div class="score-sep">–</div>
-                <input type="number" id="awayGoals" min="0" max="15" value="0" class="score-input" placeholder="{{ away.split()[0] }}">
+                <div>
+                  <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:4px">{{ away }}</div>
+                  <input type="number" id="awayGoals" min="0" max="15" value="0" class="score-input">
+                </div>
               </div>
-              <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);margin-top:4px;padding:0 4px">
-                <span>{{ home }}</span>
-                <span>{{ away }}</span>
+              <div style="font-size:0.78rem;color:var(--muted);margin-top:6px;text-align:center">
+                Your score must match your result (e.g. Home Win = home team scores more)
               </div>
             </div>
 
+            <!-- Step 3 -->
             <div class="form-group">
-              <label>Confidence — <span id="confLabel">3/5</span></label>
+              <div class="form-step-label">Step 3 — How confident are you? <span id="confLabel" style="color:var(--primary-light)">3 / 5</span></div>
               <input type="range" min="1" max="5" value="3" class="conf-slider" id="confSlider">
               <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);margin-top:4px">
                 <span>Just a guess</span>
-                <span>Very confident</span>
+                <span>100% sure</span>
               </div>
             </div>
 
+            <!-- Optional reasoning -->
             <div class="form-group">
-              <label>Reasoning <span style="font-weight:400;text-transform:none">(optional but valued)</span></label>
-              <textarea id="reasoning" placeholder="e.g. City missing 3 defenders, Arsenal in top form last 5 games, H2H heavily favors home team..."></textarea>
+              <div class="form-step-label">Your reasoning <span style="font-weight:400;text-transform:none;color:var(--muted)">(optional)</span></div>
+              <textarea id="reasoning" placeholder="Why do you think this? e.g. Home team hasn't lost at home all season, key striker is back from injury..."></textarea>
             </div>
 
-            <div id="scoreWarning" style="color:var(--red);font-size:0.82rem;margin-bottom:12px;display:none"></div>
+            <div id="scoreWarning" style="color:var(--red);font-size:0.82rem;margin-bottom:12px;display:none;padding:10px;background:rgba(255,68,68,0.08);border-radius:8px"></div>
 
-            <button type="button" class="btn btn-gold" style="width:100%;justify-content:center;font-size:1rem" onclick="submitTip()">
-              Submit Tip 👑
+            <button type="button" class="btn btn-gold" style="width:100%;justify-content:center;font-size:1rem;padding:14px" onclick="submitTip()">
+              Submit My Tip 👑
             </button>
+            <div style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:8px">
+              Tipping as <strong style="color:var(--primary-light)">{{ handle | username }}</strong>
+              <a href="#" onclick="event.preventDefault();openHandleModal()" style="color:var(--muted);margin-left:6px">change</a>
+            </div>
           </form>
           {% endif %}
         </div>
@@ -151,23 +171,23 @@
     <div>
       <div class="card">
         <div class="card-header">
-          <span style="font-weight:700">💬 All Tips</span>
+          <span style="font-weight:700">💬 What others predicted</span>
           <span style="color:var(--muted);font-size:0.82rem">{{ tips|length }} submitted</span>
         </div>
         <div style="max-height:520px;overflow-y:auto">
           {% if not tips %}
           <div style="padding:32px;text-align:center;color:var(--muted)">
             <div style="font-size:2rem;margin-bottom:10px">🤫</div>
-            Be the first to tip this match
+            Be the first to predict this match
           </div>
           {% endif %}
           {% for tip in tips %}
           <div class="tip-card {% if tip.is_correct == True %}correct{% elif tip.is_correct == False %}wrong{% else %}pending{% endif %}"
                style="margin:10px;border-radius:10px">
             <div class="tip-header">
-              <span class="tip-handle">@{{ tip.handle }}</span>
+              <span class="tip-handle">{{ tip.handle | username }}</span>
               <span class="pill pill-{{ tip.result_pick }}">
-                {% if tip.result_pick == 'H' %}Home{% elif tip.result_pick == 'D' %}Draw{% else %}Away{% endif %}
+                {% if tip.result_pick == 'H' %}Home Win{% elif tip.result_pick == 'D' %}Draw{% else %}Away Win{% endif %}
               </span>
               <span style="font-size:0.85rem;font-weight:700">{{ tip.home_goals }}–{{ tip.away_goals }}</span>
               <span class="tip-stars">{{ '★' * tip.confidence }}</span>
@@ -189,7 +209,7 @@
 
   <div style="margin:24px 0;text-align:center">
     <a href="https://betpredict.streamlit.app" target="_blank" class="btn btn-outline">
-      📊 See Statistical Prediction for this match →
+      📊 See the Statistical Prediction for this match →
     </a>
   </div>
 </div>
@@ -201,7 +221,7 @@ const home = {{ home|tojson }};
 const away = {{ away|tojson }};
 
 document.getElementById('confSlider')?.addEventListener('input', function() {
-  document.getElementById('confLabel').textContent = this.value + '/5';
+  document.getElementById('confLabel').textContent = this.value + ' / 5';
 });
 
 function validateScore() {
@@ -211,17 +231,17 @@ function validateScore() {
   const warn = document.getElementById('scoreWarning');
   if (!pick) return true;
   if (pick === 'H' && hg <= ag) {
-    warn.textContent = '⚠️ Home Win selected but score shows draw or away win';
+    warn.textContent = '⚠️ You picked Home Win but the score shows a draw or away win. Please fix the score.';
     warn.style.display = 'block';
     return false;
   }
   if (pick === 'A' && ag <= hg) {
-    warn.textContent = '⚠️ Away Win selected but score shows draw or home win';
+    warn.textContent = '⚠️ You picked Away Win but the score shows a draw or home win. Please fix the score.';
     warn.style.display = 'block';
     return false;
   }
   if (pick === 'D' && hg !== ag) {
-    warn.textContent = '⚠️ Draw selected but goals are not equal';
+    warn.textContent = '⚠️ You picked Draw but the scores are not equal. Both teams must score the same.';
     warn.style.display = 'block';
     return false;
   }
@@ -236,7 +256,7 @@ document.getElementById('awayGoals')?.addEventListener('input', validateScore);
 async function submitTip() {
   if (!validateScore()) return;
   const pick = document.querySelector('input[name="result_pick"]:checked')?.value;
-  if (!pick) { showToast('Select a result first', 'error'); return; }
+  if (!pick) { showToast('Please select a result first', 'error'); return; }
 
   const btn = document.querySelector('#tipForm button[type=button]');
   btn.textContent = 'Submitting...';
@@ -262,8 +282,8 @@ async function submitTip() {
     showToast('✅ Tip submitted! Good luck 👑', 'success');
     setTimeout(() => location.reload(), 1200);
   } else {
-    showToast(data.error || 'Failed to submit', 'error');
-    btn.textContent = 'Submit Tip 👑';
+    showToast(data.error || 'Failed to submit — please try again', 'error');
+    btn.textContent = 'Submit My Tip 👑';
     btn.disabled = false;
   }
 }

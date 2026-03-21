@@ -1,6 +1,10 @@
 import os
+import time
 import requests
 from datetime import datetime, timedelta, timezone
+
+_cache = {"data": None, "ts": 0}
+_CACHE_TTL = 300  # 5 minutes
 
 COMPETITIONS = {
     "PL":  {"name": "Premier League",   "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "country": "England"},
@@ -15,8 +19,13 @@ def _api_key():
     return os.getenv("FOOTBALL_DATA_API_KEY", "")
 
 def get_upcoming(days=14):
+    now = time.time()
+    if _cache["data"] is not None and now - _cache["ts"] < _CACHE_TTL:
+        cutoff = datetime.now() + timedelta(days=days)
+        return [m for m in _cache["data"] if m["date"] <= cutoff]
+
     today = datetime.now().strftime("%Y-%m-%d")
-    future = (datetime.now() + timedelta(days=days)).strftime("%Y-%m-%d")
+    future = (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d")
     all_matches = []
     for comp_code in COMPETITIONS:
         try:
@@ -48,4 +57,8 @@ def get_upcoming(days=14):
 
     if not all_matches:
         return []
-    return sorted(all_matches, key=lambda x: x["date"])
+    sorted_matches = sorted(all_matches, key=lambda x: x["date"])
+    _cache["data"] = sorted_matches
+    _cache["ts"] = time.time()
+    cutoff = datetime.now() + timedelta(days=days)
+    return [m for m in sorted_matches if m["date"] <= cutoff]

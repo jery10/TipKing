@@ -79,7 +79,7 @@
     {% for row in leaderboard %}
     <div class="lb-row">
       <div class="lb-rank">{{ loop.index }}</div>
-      <div class="lb-handle">@{{ row.handle }}</div>
+      <div class="lb-handle">{{ row.handle | username }}</div>
       <div style="color:var(--muted);font-size:0.82rem">{{ row.correct }}/{{ row.tips }}</div>
       <div class="lb-accuracy">{{ row.accuracy }}%</div>
     </div>
@@ -104,7 +104,7 @@
       <tbody>
         {% for t in all_tips %}
         <tr style="border-bottom:1px solid var(--border)">
-          <td style="padding:10px;font-weight:700;color:var(--gold)">@{{ t.handle }}</td>
+          <td style="padding:10px;font-weight:700;color:var(--gold)">{{ t.handle | username }}</td>
           <td style="padding:10px">{{ t.home_team }} vs {{ t.away_team }}</td>
           <td style="padding:10px">
             <span class="pill pill-{{ t.result_pick }}">

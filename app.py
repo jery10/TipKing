@@ -16,6 +16,13 @@ def handle_exception(e):
     traceback.print_exc()
     return f"<pre>500 Error:\n{traceback.format_exc()}</pre>", 500
 
+@app.template_filter('username')
+def username_filter(email):
+    """Show only the part before @ for privacy."""
+    if email and '@' in email:
+        return email.split('@')[0]
+    return email or 'anonymous'
+
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "tipking2024")
 
 

@@ -19,13 +19,13 @@
     <a href="/fixtures" class="{% if request.path == '/fixtures' %}active{% endif %}">Fixtures</a>
     <a href="/leaderboard" class="{% if request.path == '/leaderboard' %}active{% endif %}">Leaderboard</a>
     <a href="/my-tips" class="{% if request.path == '/my-tips' %}active{% endif %}">My Tips</a>
-    <a href="https://betpredict.streamlit.app" target="_blank" style="color: var(--gold)">📊 Stats Model</a>
+    <a href="https://betpredict.streamlit.app" target="_blank" style="color:rgba(255,255,255,0.9)">📊 Stats Model</a>
   </div>
   <div class="nav-handle">
     {% if handle %}
-      <span class="handle-badge">@{{ handle }}</span>
+      <span class="handle-badge">{{ handle | username }}</span>
     {% else %}
-      <button class="btn btn-gold btn-sm" onclick="openHandleModal()">Set Handle</button>
+      <button class="btn btn-gold btn-sm" style="background:#fff;color:var(--primary)" onclick="openHandleModal()">Sign In</button>
     {% endif %}
   </div>
 </nav>
@@ -48,17 +48,17 @@
   </a>
 </nav>
 
-<!-- Handle modal -->
+<!-- Email sign-in modal -->
 <div class="handle-modal hidden" id="handleModal">
   <div class="modal-box">
     <div class="modal-icon">👑</div>
-    <div class="modal-title">Enter your Twitter handle</div>
-    <div class="modal-sub">Your handle is your identity on TipKing. Winners are announced by handle.</div>
+    <div class="modal-title">Enter your email</div>
+    <div class="modal-sub">Your email is your identity on TipKing. Winners are notified by email. We never share it.</div>
     <form action="/set-handle" method="POST">
       <input type="hidden" name="next" value="{{ request.path }}">
       <div class="form-group">
-        <input type="text" name="handle" placeholder="@yourhandle" required
-               style="text-align:center;font-size:1.1rem;font-weight:700"
+        <input type="email" name="handle" placeholder="your@email.com" required
+               style="text-align:center;font-size:1rem;font-weight:600"
                autofocus>
       </div>
       <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center">
