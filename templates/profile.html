@@ -87,6 +87,25 @@
           <div style="font-size:0.72rem;color:var(--muted);margin-bottom:20px">Shown on leaderboard so other predictors can follow you.</div>
 
           <div style="margin:24px 0 16px;border-top:1px solid var(--border);padding-top:20px">
+            <div style="font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">Payout Details</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-bottom:14px">Where we send your tips when you win. Only visible to you and admins.</div>
+          </div>
+
+          <div class="form-group">
+            <label>Bank Name</label>
+            <input type="text" name="bank_name" placeholder="e.g. GTBank, First Bank, Opay"
+                   value="{{ user.bank_name if user and user.bank_name else '' }}">
+          </div>
+
+          <div class="form-group">
+            <label>Account Number</label>
+            <input type="text" name="bank_account" placeholder="10-digit account number"
+                   maxlength="10" pattern="[0-9]{10}"
+                   value="{{ user.bank_account if user and user.bank_account else '' }}">
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Nigerian bank account number (10 digits).</div>
+          </div>
+
+          <div style="margin:24px 0 16px;border-top:1px solid var(--border);padding-top:20px">
             <div style="font-weight:700;margin-bottom:16px">Change Password <span style="color:var(--muted);font-weight:400;font-size:0.85rem">(leave blank to keep current)</span></div>
           </div>
 

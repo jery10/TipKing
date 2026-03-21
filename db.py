@@ -59,12 +59,15 @@ def get_user(username):
         return None
 
 
-def update_profile(username, twitter="", instagram="", tiktok="", new_password=None):
+def update_profile(username, twitter="", instagram="", tiktok="",
+                   bank_name="", bank_account="", new_password=None):
     try:
         updates = {
-            "twitter":   twitter.lstrip("@").strip(),
-            "instagram": instagram.lstrip("@").strip(),
-            "tiktok":    tiktok.lstrip("@").strip(),
+            "twitter":      twitter.lstrip("@").strip(),
+            "instagram":    instagram.lstrip("@").strip(),
+            "tiktok":       tiktok.lstrip("@").strip(),
+            "bank_name":    bank_name.strip(),
+            "bank_account": bank_account.strip(),
         }
         if new_password:
             updates["password_hash"] = generate_password_hash(new_password)

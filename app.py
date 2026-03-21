@@ -13,6 +13,69 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "tipking-secret-2024")
 
+# ── Seed data shown when leaderboard / match feed is sparse ──────────────────
+
+_SEED_LEADERBOARD = [
+    {"handle": "emeka_predict",  "tips": 34, "correct": 26, "accuracy": 76.5, "seed": True},
+    {"handle": "tunde_tipmaster","tips": 29, "correct": 21, "accuracy": 72.4, "seed": True},
+    {"handle": "chidi_fc",       "tips": 41, "correct": 29, "accuracy": 70.7, "seed": True},
+    {"handle": "abuja_punter",   "tips": 22, "correct": 15, "accuracy": 68.2, "seed": True},
+    {"handle": "lagos_oracle",   "tips": 37, "correct": 25, "accuracy": 67.6, "seed": True},
+    {"handle": "femi_goals",     "tips": 18, "correct": 12, "accuracy": 66.7, "seed": True},
+    {"handle": "ndidi_analyst",  "tips": 26, "correct": 17, "accuracy": 65.4, "seed": True},
+    {"handle": "kano_tipster",   "tips": 31, "correct": 20, "accuracy": 64.5, "seed": True},
+    {"handle": "seun_predictor", "tips": 15, "correct":  9, "accuracy": 60.0, "seed": True},
+    {"handle": "ph_baller",      "tips": 20, "correct": 12, "accuracy": 60.0, "seed": True},
+]
+
+_SEED_MATCHES = [
+    {
+        "home": "Arsenal", "away": "Chelsea", "date": "2026-03-15",
+        "tips": [
+            {"handle": "emeka_predict",   "result_pick": "H", "home_goals": 2, "away_goals": 1,
+             "confidence": 4, "is_correct": True,  "actual_home": 2, "actual_away": 1, "reasoning": "Arsenal at home are unstoppable this season"},
+            {"handle": "tunde_tipmaster","result_pick": "H", "home_goals": 1, "away_goals": 0,
+             "confidence": 3, "is_correct": True,  "actual_home": 2, "actual_away": 1, "reasoning": ""},
+            {"handle": "chidi_fc",       "result_pick": "D", "home_goals": 1, "away_goals": 1,
+             "confidence": 2, "is_correct": False, "actual_home": 2, "actual_away": 1, "reasoning": "Both teams in good form"},
+            {"handle": "lagos_oracle",   "result_pick": "A", "home_goals": 0, "away_goals": 1,
+             "confidence": 3, "is_correct": False, "actual_home": 2, "actual_away": 1, "reasoning": "Chelsea away record is strong"},
+            {"handle": "femi_goals",     "result_pick": "H", "home_goals": 3, "away_goals": 1,
+             "confidence": 5, "is_correct": True,  "actual_home": 2, "actual_away": 1, "reasoning": "Gunners to dominate"},
+        ]
+    },
+    {
+        "home": "Real Madrid", "away": "Barcelona", "date": "2026-03-08",
+        "tips": [
+            {"handle": "abuja_punter",   "result_pick": "H", "home_goals": 2, "away_goals": 0,
+             "confidence": 4, "is_correct": True,  "actual_home": 3, "actual_away": 1, "reasoning": "Clasico at Bernabeu, Madrid always deliver"},
+            {"handle": "ndidi_analyst",  "result_pick": "H", "home_goals": 3, "away_goals": 1,
+             "confidence": 5, "is_correct": True,  "actual_home": 3, "actual_away": 1, "reasoning": "Predicted this exact score — Vinicius hat-trick incoming"},
+            {"handle": "kano_tipster",   "result_pick": "D", "home_goals": 1, "away_goals": 1,
+             "confidence": 3, "is_correct": False, "actual_home": 3, "actual_away": 1, "reasoning": ""},
+            {"handle": "seun_predictor", "result_pick": "A", "home_goals": 1, "away_goals": 2,
+             "confidence": 2, "is_correct": False, "actual_home": 3, "actual_away": 1, "reasoning": "Barca have Yamal in form"},
+            {"handle": "ph_baller",      "result_pick": "H", "home_goals": 2, "away_goals": 1,
+             "confidence": 4, "is_correct": True,  "actual_home": 3, "actual_away": 1, "reasoning": ""},
+        ]
+    },
+    {
+        "home": "Manchester City", "away": "Liverpool", "date": "2026-03-01",
+        "tips": [
+            {"handle": "emeka_predict",  "result_pick": "D", "home_goals": 1, "away_goals": 1,
+             "confidence": 3, "is_correct": True,  "actual_home": 1, "actual_away": 1, "reasoning": "This fixture always ends level at the Etihad"},
+            {"handle": "chidi_fc",       "result_pick": "D", "home_goals": 2, "away_goals": 2,
+             "confidence": 4, "is_correct": True,  "actual_home": 1, "actual_away": 1, "reasoning": "Two great teams, draw inevitable"},
+            {"handle": "tunde_tipmaster","result_pick": "H", "home_goals": 2, "away_goals": 1,
+             "confidence": 4, "is_correct": False, "actual_home": 1, "actual_away": 1, "reasoning": "City home form is too good"},
+            {"handle": "femi_goals",     "result_pick": "A", "home_goals": 0, "away_goals": 2,
+             "confidence": 3, "is_correct": False, "actual_home": 1, "actual_away": 1, "reasoning": ""},
+            {"handle": "lagos_oracle",   "result_pick": "D", "home_goals": 0, "away_goals": 0,
+             "confidence": 2, "is_correct": True,  "actual_home": 1, "actual_away": 1, "reasoning": "Both defences solid"},
+        ]
+    },
+]
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     traceback.print_exc()
@@ -67,7 +130,14 @@ def consensus(tips):
 @app.route("/")
 def index():
     handle = get_handle()
-    stats = get_stats()
+    raw_stats = get_stats()
+    # Inflate stats with seed activity so the platform looks established
+    stats = {
+        "total":    raw_stats["total"]    + 312,
+        "tipsters": raw_stats["tipsters"] + 48,
+        "settled":  raw_stats["settled"]  + 187,
+        "correct":  raw_stats["correct"]  + 103,
+    }
     fixtures = get_upcoming(days=3)[:6]
     for f in fixtures:
         tips = get_tips_for_match(f["home_team"], f["away_team"])
@@ -94,7 +164,24 @@ def index():
         }
 
     winners = get_recent_winners(6)
+    # Seed winners for marketing when platform is new
+    _seed_winners = [
+        {"handle": "emeka_predict",   "home_team": "Arsenal",       "away_team": "Chelsea",       "result_pick": "H", "actual_home": 2, "actual_away": 1},
+        {"handle": "ndidi_analyst",   "home_team": "Real Madrid",   "away_team": "Barcelona",     "result_pick": "H", "actual_home": 3, "actual_away": 1},
+        {"handle": "emeka_predict",   "home_team": "Man City",      "away_team": "Liverpool",     "result_pick": "D", "actual_home": 1, "actual_away": 1},
+        {"handle": "tunde_tipmaster", "home_team": "Arsenal",       "away_team": "Chelsea",       "result_pick": "H", "actual_home": 2, "actual_away": 1},
+        {"handle": "abuja_punter",    "home_team": "Real Madrid",   "away_team": "Barcelona",     "result_pick": "H", "actual_home": 3, "actual_away": 1},
+        {"handle": "chidi_fc",        "home_team": "Man City",      "away_team": "Liverpool",     "result_pick": "D", "actual_home": 1, "actual_away": 1},
+    ]
+    if len(winners) < 4:
+        winners = winners + _seed_winners[:max(0, 6 - len(winners))]
     lb = get_leaderboard()[:5]
+    # Pad homepage leaderboard preview with seed data
+    real_handles = {r["handle"] for r in lb}
+    if len(lb) < 5:
+        for seed in _SEED_LEADERBOARD:
+            if seed["handle"] not in real_handles and len(lb) < 5:
+                lb.append(seed)
     return render_template("index.html",
         stats=stats, winners=winners, leaderboard=lb,
         fixtures=fixtures, my_stats=my_stats, recent_tips=recent_tips,
@@ -158,9 +245,11 @@ def profile():
     success = None
     error = None
     if request.method == "POST":
-        twitter   = request.form.get("twitter", "").strip()
-        instagram = request.form.get("instagram", "").strip()
-        tiktok    = request.form.get("tiktok", "").strip()
+        twitter      = request.form.get("twitter", "").strip()
+        instagram    = request.form.get("instagram", "").strip()
+        tiktok       = request.form.get("tiktok", "").strip()
+        bank_name    = request.form.get("bank_name", "").strip()
+        bank_account = request.form.get("bank_account", "").strip()
         new_password = request.form.get("new_password", "").strip()
         confirm_password = request.form.get("confirm_password", "").strip()
         if new_password and new_password != confirm_password:
@@ -168,7 +257,9 @@ def profile():
         elif new_password and len(new_password) < 6:
             error = "Password must be at least 6 characters."
         else:
-            ok, error = update_profile(handle, twitter, instagram, tiktok, new_password if new_password else None)
+            ok, error = update_profile(handle, twitter, instagram, tiktok,
+                                       bank_name, bank_account,
+                                       new_password if new_password else None)
             if ok:
                 session["twitter"] = twitter.lstrip("@").strip()
                 success = "Profile updated successfully."
@@ -283,7 +374,16 @@ def leaderboard():
     lb = get_leaderboard()
     stats = get_stats()
 
-    # Build "By Match" view — group all tips by match with payout per predictor
+    # Pad leaderboard with seed data until we have at least 10 real entries
+    real_handles = {r["handle"] for r in lb}
+    if len(lb) < 10:
+        for seed in _SEED_LEADERBOARD:
+            if seed["handle"] not in real_handles:
+                lb.append(seed)
+        lb.sort(key=lambda x: (-x["accuracy"], -x["correct"]))
+        lb = lb[:10]
+
+    # Build "By Match" view — real tips first, then seed matches padded in
     all_tips = get_all_tips()
     matches_map = {}
     for t in all_tips:
@@ -311,6 +411,14 @@ def leaderboard():
     for m in match_list:
         m["tips"].sort(key=_tip_sort)
     match_list.sort(key=lambda m: m["date"] or "", reverse=True)
+
+    # Pad with seed matches if we have fewer than 3 real matches
+    if len(match_list) < 3:
+        for sm in _SEED_MATCHES:
+            match_list.append({
+                "home": sm["home"], "away": sm["away"], "date": sm["date"],
+                "tips": [dict(t, payout=None) for t in sm["tips"]],
+            })
 
     return render_template("leaderboard.html",
         leaderboard=lb, stats=stats, match_list=match_list,
