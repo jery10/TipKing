@@ -23,8 +23,21 @@
   </div>
   <div class="nav-handle">
     {% if handle %}
-      <span class="handle-badge">@{% if twitter %}{{ twitter }}{% else %}{{ handle }}{% endif %}</span>
-      <a href="/logout" style="color:rgba(255,255,255,0.6);font-size:0.8rem;font-weight:600;padding:6px 10px;border-radius:6px;transition:all 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Sign out</a>
+      <div class="profile-dropdown">
+        <button class="profile-btn" id="profileBtn" onclick="toggleProfileMenu()">
+          👤 @{% if twitter %}{{ twitter }}{% else %}{{ handle }}{% endif %}
+          <span class="chevron">▼</span>
+        </button>
+        <div class="profile-menu" id="profileMenu">
+          <a href="/my-tips">📋 My Predictions</a>
+          <a href="/profile">✏️ Edit Profile</a>
+          <div class="menu-divider"></div>
+          <a href="/leaderboard">🏆 Leaderboard</a>
+          <a href="/fixtures">📅 Fixtures</a>
+          <div class="menu-divider"></div>
+          <a href="/logout" style="color:var(--red)">🚪 Sign Out</a>
+        </div>
+      </div>
     {% else %}
       <a href="/login" class="btn btn-gold btn-sm" style="background:#fff;color:var(--primary)">Sign In</a>
       <a href="/register" class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3)">Register</a>
@@ -75,6 +88,20 @@
 
 <script>
 function openHandleModal() { window.location.href = '/login'; }
+
+function toggleProfileMenu() {
+  const btn = document.getElementById('profileBtn');
+  const menu = document.getElementById('profileMenu');
+  btn.classList.toggle('open');
+  menu.classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  const dropdown = document.querySelector('.profile-dropdown');
+  if (dropdown && !dropdown.contains(e.target)) {
+    document.getElementById('profileBtn')?.classList.remove('open');
+    document.getElementById('profileMenu')?.classList.remove('open');
+  }
+});
 
 function showToast(msg, type='success') {
   const t = document.getElementById('toast');

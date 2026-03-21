@@ -51,6 +51,26 @@ def login_user(email, password):
         return None, "Something went wrong. Please try again."
 
 
+def get_user(username):
+    try:
+        res = get_db().table("users").select("*").eq("username", username).execute()
+        return res.data[0] if res.data else None
+    except Exception:
+        return None
+
+
+def update_profile(username, twitter, new_password=None):
+    try:
+        updates = {"twitter": twitter.lstrip("@").strip()}
+        if new_password:
+            updates["password_hash"] = generate_password_hash(new_password)
+        get_db().table("users").update(updates).eq("username", username).execute()
+        return True, ""
+    except Exception as e:
+        print(f"update_profile error: {e}")
+        return False, "Could not save changes. Please try again."
+
+
 def submit_tip(handle, competition, home_team, away_team,
                match_date, result_pick, home_goals, away_goals,
                confidence, reasoning):

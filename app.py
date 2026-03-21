@@ -4,7 +4,8 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, s
 from dotenv import load_dotenv
 from db import (submit_tip, get_tips_for_match, has_tipped, get_my_tips,
                 get_leaderboard, get_all_tips, get_recent_winners, get_stats,
-                mark_result, calculate_payout, register_user, login_user)
+                mark_result, calculate_payout, register_user, login_user,
+                get_user, update_profile)
 from fixtures import get_upcoming, COMPETITIONS
 
 load_dotenv()
@@ -65,18 +66,39 @@ def consensus(tips):
 
 @app.route("/")
 def index():
+    handle = get_handle()
     stats = get_stats()
-    winners = get_recent_winners(6)
-    lb = get_leaderboard()[:5]
     fixtures = get_upcoming(days=3)[:6]
-    # Add tip counts to fixtures
     for f in fixtures:
         tips = get_tips_for_match(f["home_team"], f["away_team"])
         f["tip_count"] = len(tips)
         f["consensus"] = consensus(tips)
+        f["already_tipped"] = has_tipped(handle, f["home_team"], f["away_team"]) if handle else False
+
+    my_stats = {"total": 0, "correct": 0, "accuracy": 0, "earned": 0}
+    recent_tips = []
+    if handle:
+        my_tips_all = get_my_tips(handle)
+        recent_tips = my_tips_all[:5]
+        settled = [t for t in my_tips_all if t.get("is_correct") is not None]
+        correct = sum(1 for t in settled if t["is_correct"])
+        earned = sum(
+            calculate_payout(t, t["actual_home"], t["actual_away"])[0]
+            for t in settled if t.get("actual_home") is not None
+        )
+        my_stats = {
+            "total": len(my_tips_all),
+            "correct": correct,
+            "accuracy": round(correct / len(settled) * 100, 1) if settled else 0,
+            "earned": earned,
+        }
+
+    winners = get_recent_winners(6)
+    lb = get_leaderboard()[:5]
     return render_template("index.html",
         stats=stats, winners=winners, leaderboard=lb,
-        fixtures=fixtures, handle=get_handle(), twitter=get_twitter())
+        fixtures=fixtures, my_stats=my_stats, recent_tips=recent_tips,
+        handle=handle, twitter=get_twitter())
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -124,6 +146,32 @@ def login():
 def logout():
     session.clear()
     return redirect("/")
+
+
+@app.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    handle = get_handle()
+    user = get_user(handle)
+    success = None
+    error = None
+    if request.method == "POST":
+        twitter = request.form.get("twitter", "").strip()
+        new_password = request.form.get("new_password", "").strip()
+        confirm_password = request.form.get("confirm_password", "").strip()
+        if new_password and new_password != confirm_password:
+            error = "Passwords don't match."
+        elif new_password and len(new_password) < 6:
+            error = "Password must be at least 6 characters."
+        else:
+            ok, error = update_profile(handle, twitter, new_password if new_password else None)
+            if ok:
+                session["twitter"] = twitter.lstrip("@").strip()
+                success = "Profile updated successfully."
+                user = get_user(handle)  # refresh
+    return render_template("profile.html",
+        user=user, success=success, error=error,
+        handle=handle, twitter=get_twitter())
 
 
 @app.route("/set-handle", methods=["POST"])

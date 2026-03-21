@@ -87,6 +87,59 @@ nav {
   color: #fff;
 }
 
+/* ── Profile dropdown ── */
+.profile-dropdown {
+  position: relative;
+}
+.profile-btn {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.profile-btn:hover { background: rgba(255,255,255,0.25); }
+.profile-btn .chevron { font-size: 0.65rem; transition: transform 0.2s; }
+.profile-btn.open .chevron { transform: rotate(180deg); }
+
+.profile-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  min-width: 200px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 200;
+}
+.profile-menu.open { display: block; }
+.profile-menu a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  transition: background 0.12s;
+}
+.profile-menu a:hover { background: var(--bg3); }
+.profile-menu .menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;

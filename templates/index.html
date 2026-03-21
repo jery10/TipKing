@@ -2,15 +2,125 @@
 {% block title %}TipKing — Predict. Get Tipped.{% endblock %}
 {% block content %}
 
-<!-- Hero -->
+{% if handle %}
+<!-- ── Logged-in Dashboard ── -->
+<div class="container" style="padding-top:40px">
+
+  <div style="margin-bottom:32px">
+    <div style="font-size:1.6rem;font-weight:900">Welcome back, <span style="color:var(--primary-light)">@{% if twitter %}{{ twitter }}{% else %}{{ handle }}{% endif %}</span> 👑</div>
+    <div style="color:var(--muted);margin-top:4px">Here's what's happening today</div>
+  </div>
+
+  <!-- Personal stats -->
+  <div class="stats-bar" style="margin-bottom:36px">
+    <div class="stat-item">
+      <span class="stat-num">{{ my_stats.total }}</span>
+      <div class="stat-label">My Predictions</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ my_stats.correct }}</span>
+      <div class="stat-label">Correct</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">{{ my_stats.accuracy }}%</span>
+      <div class="stat-label">Accuracy</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" style="font-size:1.3rem">₦{{ my_stats.earned }}</span>
+      <div class="stat-label">Total Earned</div>
+    </div>
+  </div>
+
+  <!-- Upcoming matches -->
+  {% if fixtures %}
+  <section class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div class="section-title">⚽ Upcoming Matches</div>
+        <div class="section-sub">Predict before kickoff to earn tips</div>
+      </div>
+      <a href="/fixtures" class="btn btn-outline btn-sm">All Fixtures →</a>
+    </div>
+
+    {% for f in fixtures %}
+    <a href="/match/{{ f.home_team|urlencode }}/vs/{{ f.away_team|urlencode }}" class="match-card">
+      <div class="match-comp">{{ f.comp_flag }} {{ f.comp_name }}</div>
+      <div class="match-teams">
+        <div class="team-name home">{{ f.home_team }}</div>
+        <div class="match-vs">{{ f.date_str }}</div>
+        <div class="team-name away">{{ f.away_team }}</div>
+      </div>
+      {% if f.tip_count > 0 %}
+      <div class="consensus">
+        <div class="con-h" style="width:{{ f.consensus.H }}%"></div>
+        <div class="con-d" style="width:{{ f.consensus.D }}%"></div>
+        <div class="con-a" style="width:{{ f.consensus.A }}%"></div>
+      </div>
+      <div class="consensus-labels">
+        <span class="con-label-h">Home {{ f.consensus.H }}%</span>
+        <span class="con-label-d">Draw {{ f.consensus.D }}%</span>
+        <span class="con-label-a">Away {{ f.consensus.A }}%</span>
+      </div>
+      {% endif %}
+      <div class="match-meta" style="margin-top:8px">
+        <span>{{ f.tip_count }} prediction{{ 's' if f.tip_count != 1 else '' }}</span>
+        {% if f.already_tipped %}
+          <span style="color:var(--green);font-weight:600">✅ Predicted</span>
+        {% else %}
+          <span style="color:var(--primary-light);font-weight:600">Predict →</span>
+        {% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  <!-- Recent predictions -->
+  {% if recent_tips %}
+  <section class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div class="section-title">📋 My Recent Predictions</div>
+      <a href="/my-tips" class="btn btn-outline btn-sm">View All →</a>
+    </div>
+    {% for tip in recent_tips %}
+    {% set status = 'correct' if tip.is_correct == True else ('wrong' if tip.is_correct == False else 'pending') %}
+    <div class="tip-card {{ status }}" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-weight:800">{{ tip.home_team }} vs {{ tip.away_team }}</div>
+          <div style="color:var(--muted);font-size:0.78rem">{{ tip.match_date }}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span class="pill pill-{{ tip.result_pick }}">
+            {% if tip.result_pick == 'H' %}Home Win{% elif tip.result_pick == 'D' %}Draw{% else %}Away Win{% endif %}
+          </span>
+          <span style="font-weight:800">{{ tip.home_goals }}–{{ tip.away_goals }}</span>
+          {% if tip.is_correct is none %}
+            <span class="pill pill-pending">⏳ Pending</span>
+          {% elif tip.is_correct %}
+            <span class="pill pill-correct">✅ Correct</span>
+          {% else %}
+            <span class="pill pill-wrong">❌ Wrong</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+</div>
+
+{% else %}
+<!-- ── Landing page for guests ── -->
 <section class="hero">
   <div class="container">
     <div class="hero-tag">🔥 Free to join · No risk</div>
     <h1>Your Football Knowledge<br>Should <span class="gold">Pay You</span></h1>
     <p>Make free match predictions. Get tipped when you're right. No bets, no deposits — just your football brain.</p>
     <div class="hero-cta">
-      <a href="/fixtures" class="btn btn-gold btn-hero">Make a Prediction 👑</a>
-      <a href="/leaderboard" class="btn btn-outline btn-hero">View Leaderboard</a>
+      <a href="/register" class="btn btn-gold btn-hero">Get Started Free 👑</a>
+      <a href="/login" class="btn btn-outline btn-hero">Sign In</a>
     </div>
   </div>
 </section>
@@ -25,7 +135,7 @@
     </div>
     <div class="stat-item">
       <span class="stat-num">{{ stats.tipsters }}</span>
-      <div class="stat-label">Tipsters</div>
+      <div class="stat-label">Predictors</div>
     </div>
     <div class="stat-item">
       <span class="stat-num">{{ stats.settled }}</span>
@@ -58,7 +168,7 @@
         <div class="step-num">03</div>
         <div class="step-icon">💰</div>
         <div class="step-title">Get Tipped</div>
-        <div class="step-desc">Right predictions get rewarded after the match. The more accurate you are, the bigger the recognition.</div>
+        <div class="step-desc">Right predictions get rewarded after the match. The more accurate you are, the bigger the tip.</div>
       </div>
     </div>
   </section>
@@ -69,34 +179,21 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div>
         <div class="section-title">Upcoming Matches</div>
-        <div class="section-sub">Predict these matches before kickoff</div>
+        <div class="section-sub">Sign up to predict these</div>
       </div>
       <a href="/fixtures" class="btn btn-outline btn-sm">View All →</a>
     </div>
-
     {% for f in fixtures %}
-    <a href="/match/{{ f.home_team|urlencode }}/vs/{{ f.away_team|urlencode }}" class="match-card">
+    <a href="/register" class="match-card">
       <div class="match-comp">{{ f.comp_flag }} {{ f.comp_name }}</div>
       <div class="match-teams">
         <div class="team-name home">{{ f.home_team }}</div>
         <div class="match-vs">{{ f.date_str }}</div>
         <div class="team-name away">{{ f.away_team }}</div>
       </div>
-      {% if f.tip_count > 0 %}
-      <div class="consensus">
-        <div class="con-h" style="width:{{ f.consensus.H }}%"></div>
-        <div class="con-d" style="width:{{ f.consensus.D }}%"></div>
-        <div class="con-a" style="width:{{ f.consensus.A }}%"></div>
-      </div>
-      <div class="consensus-labels">
-        <span class="con-label-h">Home {{ f.consensus.H }}%</span>
-        <span class="con-label-d">Draw {{ f.consensus.D }}%</span>
-        <span class="con-label-a">Away {{ f.consensus.A }}%</span>
-      </div>
-      {% endif %}
       <div class="match-meta" style="margin-top:8px">
         <span>{{ f.tip_count }} prediction{{ 's' if f.tip_count != 1 else '' }}</span>
-        <span style="color:var(--primary-light);font-weight:600">Predict →</span>
+        <span style="color:var(--primary-light);font-weight:600">Sign up to predict →</span>
       </div>
     </a>
     {% endfor %}
@@ -108,8 +205,8 @@
   <section class="section">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div>
-        <div class="section-title">🏆 Top Tipsters</div>
-        <div class="section-sub">Ranked by accuracy. Minimum 3 settled predictions.</div>
+        <div class="section-title">🏆 Top Predictors</div>
+        <div class="section-sub">Ranked by accuracy</div>
       </div>
       <a href="/leaderboard" class="btn btn-outline btn-sm">Full Table →</a>
     </div>
@@ -120,9 +217,7 @@
           {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
         </div>
         <div class="lb-handle">@{{ row.handle }}</div>
-        <div class="lb-stats">
-          <span>{{ row.correct }}/{{ row.tips }} correct</span>
-        </div>
+        <div class="lb-stats"><span>{{ row.correct }}/{{ row.tips }} correct</span></div>
         <div class="lb-accuracy">{{ row.accuracy }}%</div>
       </div>
       {% endfor %}
@@ -147,9 +242,7 @@
           </span>
         </div>
         {% if w.actual_home is not none %}
-        <div style="font-size:0.78rem;color:var(--muted);margin-top:6px">
-          {{ w.actual_home }}–{{ w.actual_away }}
-        </div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-top:6px">{{ w.actual_home }}–{{ w.actual_away }}</div>
         {% endif %}
       </div>
       {% endfor %}
@@ -158,4 +251,6 @@
   {% endif %}
 
 </div>
+{% endif %}
+
 {% endblock %}
