@@ -4,92 +4,115 @@
 <div class="container">
   <div class="page-header">
     <div class="page-title">🏆 Leaderboard</div>
-    <div class="page-sub">Top predictors ranked by accuracy</div>
+    <div class="page-sub">Top predictors &amp; live predictions</div>
   </div>
 
-  <!-- Overall Rankings -->
-  {% if not leaderboard %}
-  <div style="text-align:center;padding:60px;color:var(--muted)">
-    <div style="font-size:3rem;margin-bottom:16px">🏆</div>
-    <div style="font-size:1.1rem;font-weight:600">No settled predictions yet</div>
-    <div style="margin-top:8px">Check back after matches are played</div>
-    <a href="/fixtures" class="btn btn-gold" style="margin-top:20px;display:inline-flex">Make a Prediction →</a>
+  <!-- Toggle tabs -->
+  <div style="display:flex;gap:4px;margin-bottom:24px;background:var(--bg2);border-radius:10px;padding:4px;border:1px solid var(--border)">
+    <button id="tab-rankings" onclick="showTab('rankings')"
+      style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;font-size:0.88rem;cursor:pointer;transition:all 0.15s;background:var(--primary);color:#fff">
+      🏅 Top Predictors
+    </button>
+    <button id="tab-live" onclick="showTab('live')"
+      style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;font-size:0.88rem;cursor:pointer;transition:all 0.15s;background:transparent;color:var(--muted)">
+      🔴 Live Predictions <span style="font-size:0.75rem;background:rgba(255,68,68,0.2);color:var(--red);padding:1px 7px;border-radius:10px;margin-left:4px">{{ live|length }}</span>
+    </button>
   </div>
-  {% else %}
-  <div style="font-size:0.78rem;color:var(--muted);margin-bottom:12px">Minimum 3 settled predictions to qualify</div>
-  <div class="card" style="margin-bottom:36px">
-    {% for row in leaderboard %}
-    <div class="lb-row">
-      <div class="lb-rank {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
-        {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
-      </div>
-      <div>
-        <div class="lb-handle">@{{ row.handle | username }}</div>
-        <div style="font-size:0.75rem;color:var(--muted)">{{ row.correct }}/{{ row.tips }} correct</div>
-      </div>
-      <div style="flex:1"></div>
-      <div class="lb-accuracy">{{ row.accuracy }}%</div>
+
+  <!-- Top Predictors panel -->
+  <div id="panel-rankings">
+    {% if not leaderboard %}
+    <div style="text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:3rem;margin-bottom:16px">🏆</div>
+      <div style="font-size:1.1rem;font-weight:600">No settled predictions yet</div>
+      <div style="margin-top:8px">Check back after matches are played</div>
+      <a href="/fixtures" class="btn btn-gold" style="margin-top:20px;display:inline-flex">Make a Prediction →</a>
     </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  <!-- Live Predictions Feed -->
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-    <div style="font-size:1rem;font-weight:800">🔴 Live Predictions</div>
-    <span style="font-size:0.75rem;background:rgba(255,68,68,0.15);color:var(--red);padding:2px 10px;border-radius:12px;font-weight:700">{{ live|length }} pending</span>
-  </div>
-
-  {% if not live %}
-  <div style="text-align:center;padding:40px;color:var(--muted)">
-    <div style="font-size:2.5rem;margin-bottom:12px">📭</div>
-    <div style="font-weight:600">No live predictions yet</div>
-    <div style="margin-top:6px;font-size:0.85rem">Be the first to predict an upcoming match</div>
-    <a href="/fixtures" class="btn btn-gold" style="margin-top:20px;display:inline-flex">Browse Fixtures →</a>
-  </div>
-  {% else %}
-  <div style="display:grid;gap:12px">
-    {% for tip in live %}
-    <div class="tip-card pending" id="tip-{{ tip.id }}">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <div style="min-width:0">
-          <div style="font-weight:800;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tip.home_team }} vs {{ tip.away_team }}</div>
-          <div style="color:var(--muted);font-size:0.78rem;margin-top:2px">{{ tip.match_date }} &nbsp;·&nbsp; by <strong style="color:var(--primary-light)">@{{ tip.handle | username }}</strong></div>
+    {% else %}
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:12px">Minimum 3 settled predictions to qualify</div>
+    <div class="card">
+      {% for row in leaderboard %}
+      <div class="lb-row">
+        <div class="lb-rank {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
+          {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
         </div>
-        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-          <span class="pill pill-{{ tip.result_pick }}" style="font-size:0.75rem">
-            {% if tip.result_pick == 'H' %}Home Win{% elif tip.result_pick == 'D' %}Draw{% else %}Away Win{% endif %}
+        <div>
+          <div class="lb-handle">@{{ row.handle | username }}</div>
+          <div style="font-size:0.75rem;color:var(--muted)">{{ row.correct }}/{{ row.tips }} correct</div>
+        </div>
+        <div style="flex:1"></div>
+        <div class="lb-accuracy">{{ row.accuracy }}%</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Live Predictions panel -->
+  <div id="panel-live" style="display:none">
+    {% if not live %}
+    <div style="text-align:center;padding:40px;color:var(--muted)">
+      <div style="font-size:2.5rem;margin-bottom:12px">📭</div>
+      <div style="font-weight:600">No live predictions yet</div>
+      <div style="margin-top:6px;font-size:0.85rem">Be the first to predict an upcoming match</div>
+      <a href="/fixtures" class="btn btn-gold" style="margin-top:20px;display:inline-flex">Browse Fixtures →</a>
+    </div>
+    {% else %}
+    <div style="display:grid;gap:12px">
+      {% for tip in live %}
+      <div class="tip-card pending" id="tip-{{ tip.id }}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="min-width:0">
+            <div style="font-weight:800;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tip.home_team }} vs {{ tip.away_team }}</div>
+            <div style="color:var(--muted);font-size:0.78rem;margin-top:2px">{{ tip.match_date }} &nbsp;·&nbsp; by <strong style="color:var(--primary-light)">@{{ tip.handle | username }}</strong></div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            {% if tip.result_pick %}
+            <span class="pill pill-{{ tip.result_pick }}" style="font-size:0.75rem">
+              {% if tip.result_pick == 'H' %}Home Win{% elif tip.result_pick == 'D' %}Draw{% else %}Away Win{% endif %}
+            </span>
+            <span style="font-weight:800;font-size:0.9rem">{{ tip.home_goals }}–{{ tip.away_goals }}</span>
+            {% elif tip.ou25_pick %}
+            <span class="pill pill-pending" style="font-size:0.75rem">O/U 2.5 · {{ 'Over' if tip.ou25_pick == 'O' else 'Under' }}</span>
+            {% elif tip.ou35_pick %}
+            <span class="pill pill-pending" style="font-size:0.75rem">O/U 3.5 · {{ 'Over' if tip.ou35_pick == 'O' else 'Under' }}</span>
+            {% elif tip.ou45_pick %}
+            <span class="pill pill-pending" style="font-size:0.75rem">O/U 4.5 · {{ 'Over' if tip.ou45_pick == 'O' else 'Under' }}</span>
+            {% elif tip.goals_range_pick %}
+            <span class="pill pill-pending" style="font-size:0.75rem">Goals {{ tip.goals_range_pick }}</span>
+            {% elif tip.btts_pick %}
+            <span class="pill pill-pending" style="font-size:0.75rem">BTTS {{ tip.btts_pick }}</span>
+            {% endif %}
+            <span class="tip-stars" style="font-size:0.78rem">{{ '★' * tip.confidence }}</span>
+          </div>
+        </div>
+
+        {% if tip.reasoning %}
+        <div class="tip-reasoning">"{{ tip.reasoning }}"</div>
+        {% endif %}
+
+        <!-- Vote buttons -->
+        {% set already = voted.get(tip.id|string) %}
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+          <button onclick="vote('{{ tip.id }}', 'up', this)"
+            class="vote-btn {% if already == 'up' %}vote-active-up{% endif %}"
+            {% if already %}disabled{% endif %}>
+            👍 <span class="vote-count" id="up-{{ tip.id }}">{{ tip.upvotes or 0 }}</span>
+          </button>
+          <button onclick="vote('{{ tip.id }}', 'down', this)"
+            class="vote-btn {% if already == 'down' %}vote-active-down{% endif %}"
+            {% if already %}disabled{% endif %}>
+            👎 <span class="vote-count" id="down-{{ tip.id }}">{{ tip.downvotes or 0 }}</span>
+          </button>
+          <span id="total-{{ tip.id }}" style="color:var(--muted);font-size:0.75rem;margin-left:4px">
+            {{ (tip.upvotes or 0) + (tip.downvotes or 0) }} vote{{ 's' if (tip.upvotes or 0) + (tip.downvotes or 0) != 1 else '' }}
           </span>
-          <span style="font-weight:800;font-size:0.9rem">{{ tip.home_goals }}–{{ tip.away_goals }}</span>
-          <span class="tip-stars" style="font-size:0.78rem">{{ '★' * tip.confidence }}</span>
         </div>
       </div>
-
-      {% if tip.reasoning %}
-      <div class="tip-reasoning">"{{ tip.reasoning }}"</div>
-      {% endif %}
-
-      <!-- Vote buttons -->
-      {% set already = voted.get(tip.id|string) %}
-      <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
-        <button onclick="vote('{{ tip.id }}', 'up', this)"
-          class="vote-btn {% if already == 'up' %}vote-active-up{% endif %}"
-          {% if already %}disabled{% endif %}>
-          👍 <span class="vote-count" id="up-{{ tip.id }}">{{ tip.upvotes or 0 }}</span>
-        </button>
-        <button onclick="vote('{{ tip.id }}', 'down', this)"
-          class="vote-btn {% if already == 'down' %}vote-active-down{% endif %}"
-          {% if already %}disabled{% endif %}>
-          👎 <span class="vote-count" id="down-{{ tip.id }}">{{ tip.downvotes or 0 }}</span>
-        </button>
-        <span style="color:var(--muted);font-size:0.75rem;margin-left:4px">
-          {{ (tip.upvotes or 0) + (tip.downvotes or 0) }} vote{{ 's' if (tip.upvotes or 0) + (tip.downvotes or 0) != 1 else '' }}
-        </span>
-      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
+    {% endif %}
   </div>
-  {% endif %}
 
   <div style="text-align:center;margin-top:32px">
     <a href="/fixtures" class="btn btn-gold">Make a Prediction 👑</a>
@@ -99,6 +122,15 @@
 
 {% block scripts %}
 <script>
+function showTab(tab) {
+  ['rankings', 'live'].forEach(t => {
+    document.getElementById('panel-' + t).style.display = t === tab ? 'block' : 'none';
+    const btn = document.getElementById('tab-' + t);
+    btn.style.background = t === tab ? 'var(--primary)' : 'transparent';
+    btn.style.color      = t === tab ? '#fff' : 'var(--muted)';
+  });
+}
+
 async function vote(tipId, direction, btn) {
   const res = await fetch('/vote', {
     method: 'POST',
@@ -108,21 +140,18 @@ async function vote(tipId, direction, btn) {
   const data = await res.json();
   if (!data.ok) return;
 
-  // Update count
-  const countEl = document.getElementById(direction === 'up' ? 'up-' + tipId : 'down-' + tipId);
+  const countEl = document.getElementById((direction === 'up' ? 'up-' : 'down-') + tipId);
   countEl.textContent = parseInt(countEl.textContent) + 1;
 
-  // Disable both buttons in this card
   const card = document.getElementById('tip-' + tipId);
   card.querySelectorAll('.vote-btn').forEach(b => b.disabled = true);
   btn.classList.add(direction === 'up' ? 'vote-active-up' : 'vote-active-down');
 
-  // Update total votes text
-  const upCount = parseInt(document.getElementById('up-' + tipId).textContent);
-  const downCount = parseInt(document.getElementById('down-' + tipId).textContent);
-  const total = upCount + downCount;
-  const span = btn.closest('[style]').querySelector('span:last-child');
-  if (span) span.textContent = total + (total === 1 ? ' vote' : ' votes');
+  const up   = parseInt(document.getElementById('up-'   + tipId).textContent);
+  const down = parseInt(document.getElementById('down-' + tipId).textContent);
+  const total = up + down;
+  const totalEl = document.getElementById('total-' + tipId);
+  if (totalEl) totalEl.textContent = total + (total === 1 ? ' vote' : ' votes');
 }
 </script>
 {% endblock %}
