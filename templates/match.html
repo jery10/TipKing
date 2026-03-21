@@ -128,7 +128,7 @@
 
             <!-- Extra markets under Step 1 -->
             <div class="form-group">
-              <div class="form-step-label" style="margin-bottom:10px">More markets — pick any or all <span style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></div>
+              <div class="form-step-label" style="margin-bottom:10px">More markets — pick one <span style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></div>
 
               <!-- Over/Under 2.5 -->
               <div class="market-row">
@@ -314,20 +314,24 @@ function validateScore() {
   return true;
 }
 
-// Toggle market buttons — clicking same value again deselects it
+// Toggle market buttons — only one market active at a time
+const allMarkets = ['ou25', 'ou35', 'ou45', 'goals_range', 'btts'];
 function toggleMarket(market, value) {
   const hidden = document.getElementById(market + '_pick');
-  const prefix = market === 'goals_range' ? 'gr' : market;
-  const activeId = prefix + '_' + value;
+  const isDeselect = hidden.value === value;
 
-  // Deselect all buttons in this market
-  document.querySelectorAll(`[id^="${prefix}_"]`).forEach(b => b.classList.remove('mkt-active'));
+  // Clear ALL markets first
+  allMarkets.forEach(m => {
+    const h = document.getElementById(m + '_pick');
+    if (h) h.value = '';
+    const p = m === 'goals_range' ? 'gr' : m;
+    document.querySelectorAll(`[id^="${p}_"]`).forEach(b => b.classList.remove('mkt-active'));
+  });
 
-  if (hidden.value === value) {
-    hidden.value = ''; // deselect
-  } else {
+  if (!isDeselect) {
     hidden.value = value;
-    document.getElementById(activeId)?.classList.add('mkt-active');
+    const prefix = market === 'goals_range' ? 'gr' : market;
+    document.getElementById(prefix + '_' + value)?.classList.add('mkt-active');
   }
 }
 
