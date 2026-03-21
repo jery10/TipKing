@@ -78,7 +78,7 @@
             {% set ou_actual = ah + aa > 2.5 %}
             {% set ou_correct = ou_tip == ou_actual %}
 
-            {% if r_correct %}{% set earned.total = earned.total + 400 %}{% endif %}
+            {% if r_correct %}{% set earned.total = earned.total + 100 %}{% endif %}
             {% if s_correct %}{% set earned.total = earned.total + 1600 %}{% endif %}
             {% if ou_correct %}{% set earned.total = earned.total + 200 %}{% endif %}
 
@@ -102,7 +102,7 @@
     <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">
       {# Result — always shown #}
       <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:{% if tip.result_pick == ar %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">
-        Result {% if tip.result_pick == ar %}✓ +₦200{% else %}✗{% endif %}
+        Result {% if tip.result_pick == ar %}✓ +₦100{% else %}✗{% endif %}
       </span>
       {# Exact score — always shown #}
       <span style="font-size:0.7rem;padding:2px 8px;border-radius:12px;background:{% if tip.home_goals == ah and tip.away_goals == aa %}rgba(0,200,81,0.15);color:var(--green){% else %}rgba(255,68,68,0.1);color:var(--red){% endif %}">

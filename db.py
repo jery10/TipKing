@@ -191,7 +191,7 @@ def get_stats():
 
 
 PAYOUTS = {
-    "result":      200,
+    "result":      100,
     "exact_score": 1600,
     "ou25":        50,
     "ou35":        100,
