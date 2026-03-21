@@ -107,84 +107,78 @@
             <input type="hidden" name="home_team" value="{{ home }}">
             <input type="hidden" name="away_team" value="{{ away }}">
 
-            <!-- Step 1: Match Result -->
+            <!-- Step 1: Pick one market -->
             <div class="form-group">
-              <div class="form-step-label">Step 1 — Match Result <span style="color:var(--green);font-weight:800">₦100</span></div>
-              <div class="result-options">
-                <div>
-                  <input type="radio" name="result_pick" id="pick_H" value="H" class="result-option" required>
-                  <label for="pick_H" class="result-label" style="color:var(--green)">🟢 Home Win<br><small>{{ home.split()[0] }}</small></label>
-                </div>
-                <div>
-                  <input type="radio" name="result_pick" id="pick_D" value="D" class="result-option">
-                  <label for="pick_D" class="result-label" style="color:var(--gold)">🟡 Draw<br><small>Neither wins</small></label>
-                </div>
-                <div>
-                  <input type="radio" name="result_pick" id="pick_A" value="A" class="result-option">
-                  <label for="pick_A" class="result-label" style="color:var(--red)">🔴 Away Win<br><small>{{ away.split()[0] }}</small></label>
+              <div class="form-step-label">Step 1 — Pick a Market</div>
+
+              <!-- Match Result -->
+              <div class="market-row">
+                <div class="market-label">Match Result <span class="market-payout">₦100</span></div>
+                <div class="market-btns">
+                  <button type="button" class="mkt-btn" id="res_H" onclick="pickMarket('result','H')">🟢 {{ home.split()[0] }}</button>
+                  <button type="button" class="mkt-btn" id="res_D" onclick="pickMarket('result','D')">🟡 Draw</button>
+                  <button type="button" class="mkt-btn" id="res_A" onclick="pickMarket('result','A')">🔴 {{ away.split()[0] }}</button>
                 </div>
               </div>
-            </div>
-
-            <!-- Extra markets under Step 1 -->
-            <div class="form-group">
-              <div class="form-step-label" style="margin-bottom:10px">More markets — pick one <span style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></div>
 
               <!-- Over/Under 2.5 -->
               <div class="market-row">
                 <div class="market-label">Over/Under 2.5 goals <span class="market-payout">₦50</span></div>
                 <div class="market-btns">
-                  <button type="button" class="mkt-btn" id="ou25_O" onclick="toggleMarket('ou25','O')">Over 2.5</button>
-                  <button type="button" class="mkt-btn" id="ou25_U" onclick="toggleMarket('ou25','U')">Under 2.5</button>
+                  <button type="button" class="mkt-btn" id="ou25_O" onclick="pickMarket('ou25','O')">Over 2.5</button>
+                  <button type="button" class="mkt-btn" id="ou25_U" onclick="pickMarket('ou25','U')">Under 2.5</button>
                 </div>
-                <input type="hidden" id="ou25_pick" value="">
               </div>
 
               <!-- Over/Under 3.5 -->
               <div class="market-row">
                 <div class="market-label">Over/Under 3.5 goals <span class="market-payout">₦100</span></div>
                 <div class="market-btns">
-                  <button type="button" class="mkt-btn" id="ou35_O" onclick="toggleMarket('ou35','O')">Over 3.5</button>
-                  <button type="button" class="mkt-btn" id="ou35_U" onclick="toggleMarket('ou35','U')">Under 3.5</button>
+                  <button type="button" class="mkt-btn" id="ou35_O" onclick="pickMarket('ou35','O')">Over 3.5</button>
+                  <button type="button" class="mkt-btn" id="ou35_U" onclick="pickMarket('ou35','U')">Under 3.5</button>
                 </div>
-                <input type="hidden" id="ou35_pick" value="">
               </div>
 
               <!-- Over/Under 4.5 -->
               <div class="market-row">
                 <div class="market-label">Over/Under 4.5 goals <span class="market-payout">₦150</span></div>
                 <div class="market-btns">
-                  <button type="button" class="mkt-btn" id="ou45_O" onclick="toggleMarket('ou45','O')">Over 4.5</button>
-                  <button type="button" class="mkt-btn" id="ou45_U" onclick="toggleMarket('ou45','U')">Under 4.5</button>
+                  <button type="button" class="mkt-btn" id="ou45_O" onclick="pickMarket('ou45','O')">Over 4.5</button>
+                  <button type="button" class="mkt-btn" id="ou45_U" onclick="pickMarket('ou45','U')">Under 4.5</button>
                 </div>
-                <input type="hidden" id="ou45_pick" value="">
               </div>
 
               <!-- Goals Range -->
               <div class="market-row">
                 <div class="market-label">Goals Range <span class="market-payout">₦200</span></div>
                 <div class="market-btns" style="flex-wrap:wrap">
-                  <button type="button" class="mkt-btn" id="gr_0-1" onclick="toggleMarket('goals_range','0-1')">0–1</button>
-                  <button type="button" class="mkt-btn" id="gr_2-3" onclick="toggleMarket('goals_range','2-3')">2–3</button>
-                  <button type="button" class="mkt-btn" id="gr_4-5" onclick="toggleMarket('goals_range','4-5')">4–5</button>
-                  <button type="button" class="mkt-btn" id="gr_6+" onclick="toggleMarket('goals_range','6+')">6+</button>
+                  <button type="button" class="mkt-btn" id="gr_0-1" onclick="pickMarket('goals_range','0-1')">0–1</button>
+                  <button type="button" class="mkt-btn" id="gr_2-3" onclick="pickMarket('goals_range','2-3')">2–3</button>
+                  <button type="button" class="mkt-btn" id="gr_4-5" onclick="pickMarket('goals_range','4-5')">4–5</button>
+                  <button type="button" class="mkt-btn" id="gr_6+" onclick="pickMarket('goals_range','6+')">6+</button>
                 </div>
-                <input type="hidden" id="goals_range_pick" value="">
               </div>
 
               <!-- Both Teams to Score -->
               <div class="market-row" style="border-bottom:none">
                 <div class="market-label">Both Teams to Score <span class="market-payout">₦200</span></div>
                 <div class="market-btns">
-                  <button type="button" class="mkt-btn" id="btts_Yes" onclick="toggleMarket('btts','Yes')">Yes</button>
-                  <button type="button" class="mkt-btn" id="btts_No"  onclick="toggleMarket('btts','No')">No</button>
+                  <button type="button" class="mkt-btn" id="btts_Yes" onclick="pickMarket('btts','Yes')">Yes</button>
+                  <button type="button" class="mkt-btn" id="btts_No"  onclick="pickMarket('btts','No')">No</button>
                 </div>
-                <input type="hidden" id="btts_pick" value="">
               </div>
+
+              <!-- Hidden inputs -->
+              <input type="hidden" id="result_pick" value="">
+              <input type="hidden" id="ou25_pick" value="">
+              <input type="hidden" id="ou35_pick" value="">
+              <input type="hidden" id="ou45_pick" value="">
+              <input type="hidden" id="goals_range_pick" value="">
+              <input type="hidden" id="btts_pick" value="">
             </div>
 
-            <!-- Step 2: Score -->
-            <div class="form-group">
+            <!-- Step 2: Score — only shown when Match Result is picked -->
+            <div class="form-group" id="scoreStep" style="display:none">
               <div class="form-step-label">Step 2 — Exact Score <span style="color:var(--green);font-weight:800">₦1,600</span></div>
               <div class="score-inputs">
                 <div>
@@ -198,7 +192,7 @@
                 </div>
               </div>
               <div style="font-size:0.72rem;color:var(--muted);margin-top:6px;text-align:center">
-                Score must match your result pick above
+                Score must match your result pick
               </div>
             </div>
 
@@ -289,64 +283,88 @@ document.getElementById('confSlider')?.addEventListener('input', function() {
   document.getElementById('confLabel').textContent = this.value + ' / 5';
 });
 
+// All markets in one group — selecting one clears all others
+const allMarkets = ['result', 'ou25', 'ou35', 'ou45', 'goals_range', 'btts'];
+let activeMarket = null;
+let activeValue  = null;
+
+function pickMarket(market, value) {
+  const isDeselect = activeMarket === market && activeValue === value;
+
+  // Clear all buttons and hidden inputs
+  allMarkets.forEach(m => {
+    const h = document.getElementById(m + '_pick');
+    if (h) h.value = '';
+    const p = m === 'goals_range' ? 'gr' : (m === 'result' ? 'res' : m);
+    document.querySelectorAll(`[id^="${p}_"]`).forEach(b => b.classList.remove('mkt-active'));
+  });
+
+  if (isDeselect) {
+    activeMarket = null;
+    activeValue  = null;
+    document.getElementById('scoreStep').style.display = 'none';
+    document.getElementById('scoreWarning').style.display = 'none';
+    return;
+  }
+
+  // Set selection
+  activeMarket = market;
+  activeValue  = value;
+  document.getElementById(market + '_pick').value = value;
+  const prefix = market === 'goals_range' ? 'gr' : (market === 'result' ? 'res' : market);
+  document.getElementById(prefix + '_' + value)?.classList.add('mkt-active');
+
+  // Show/hide score step
+  document.getElementById('scoreStep').style.display = market === 'result' ? 'block' : 'none';
+  document.getElementById('scoreWarning').style.display = 'none';
+
+  // Auto-set score default to match result pick
+  if (market === 'result') {
+    const hg = parseInt(document.getElementById('homeGoals').value);
+    const ag = parseInt(document.getElementById('awayGoals').value);
+    if (value === 'H' && hg <= ag) { document.getElementById('homeGoals').value = 1; document.getElementById('awayGoals').value = 0; }
+    if (value === 'A' && ag <= hg) { document.getElementById('homeGoals').value = 0; document.getElementById('awayGoals').value = 1; }
+    if (value === 'D' && hg !== ag) { document.getElementById('awayGoals').value = hg; }
+  }
+}
+
 function validateScore() {
-  const pick = document.querySelector('input[name="result_pick"]:checked')?.value;
+  if (activeMarket !== 'result') return true;
   const hg = parseInt(document.getElementById('homeGoals').value);
   const ag = parseInt(document.getElementById('awayGoals').value);
   const warn = document.getElementById('scoreWarning');
-  if (!pick) return true;
-  if (pick === 'H' && hg <= ag) {
-    warn.textContent = '⚠️ You picked Home Win but the score shows a draw or away win. Please fix the score.';
-    warn.style.display = 'block';
-    return false;
+  if (activeValue === 'H' && hg <= ag) {
+    warn.textContent = '⚠️ Score doesn\'t match Home Win — home goals must be higher.';
+    warn.style.display = 'block'; return false;
   }
-  if (pick === 'A' && ag <= hg) {
-    warn.textContent = '⚠️ You picked Away Win but the score shows a draw or home win. Please fix the score.';
-    warn.style.display = 'block';
-    return false;
+  if (activeValue === 'A' && ag <= hg) {
+    warn.textContent = '⚠️ Score doesn\'t match Away Win — away goals must be higher.';
+    warn.style.display = 'block'; return false;
   }
-  if (pick === 'D' && hg !== ag) {
-    warn.textContent = '⚠️ You picked Draw but the scores are not equal. Both teams must score the same.';
-    warn.style.display = 'block';
-    return false;
+  if (activeValue === 'D' && hg !== ag) {
+    warn.textContent = '⚠️ Score doesn\'t match Draw — both scores must be equal.';
+    warn.style.display = 'block'; return false;
   }
   warn.style.display = 'none';
   return true;
 }
 
-// Toggle market buttons — only one market active at a time
-const allMarkets = ['ou25', 'ou35', 'ou45', 'goals_range', 'btts'];
-function toggleMarket(market, value) {
-  const hidden = document.getElementById(market + '_pick');
-  const isDeselect = hidden.value === value;
-
-  // Clear ALL markets first
-  allMarkets.forEach(m => {
-    const h = document.getElementById(m + '_pick');
-    if (h) h.value = '';
-    const p = m === 'goals_range' ? 'gr' : m;
-    document.querySelectorAll(`[id^="${p}_"]`).forEach(b => b.classList.remove('mkt-active'));
-  });
-
-  if (!isDeselect) {
-    hidden.value = value;
-    const prefix = market === 'goals_range' ? 'gr' : market;
-    document.getElementById(prefix + '_' + value)?.classList.add('mkt-active');
-  }
-}
-
-document.querySelectorAll('input[name="result_pick"]').forEach(r => r.addEventListener('change', validateScore));
 document.getElementById('homeGoals')?.addEventListener('input', validateScore);
 document.getElementById('awayGoals')?.addEventListener('input', validateScore);
 
 async function submitTip() {
-  if (!validateScore()) return;
-  const pick = document.querySelector('input[name="result_pick"]:checked')?.value;
-  if (!pick) { showToast('Please select a result first', 'error'); return; }
+  if (!activeMarket) { showToast('Please pick a market first', 'error'); return; }
+  if (activeMarket === 'result' && !validateScore()) return;
 
   const btn = document.querySelector('#tipForm button[type=button]');
   btn.textContent = 'Submitting...';
   btn.disabled = true;
+
+  // For non-result markets we still need to send a result_pick + score
+  // Use result_pick from hidden input (empty if non-result market)
+  const resultPick = document.getElementById('result_pick').value || null;
+  const hg = activeMarket === 'result' ? parseInt(document.getElementById('homeGoals').value) : 0;
+  const ag = activeMarket === 'result' ? parseInt(document.getElementById('awayGoals').value) : 0;
 
   const res = await fetch('/submit', {
     method: 'POST',
@@ -356,9 +374,9 @@ async function submitTip() {
       away_team:        away,
       competition:      '',
       match_date:       '',
-      result_pick:      pick,
-      home_goals:       parseInt(document.getElementById('homeGoals').value),
-      away_goals:       parseInt(document.getElementById('awayGoals').value),
+      result_pick:      resultPick,
+      home_goals:       hg,
+      away_goals:       ag,
       confidence:       parseInt(document.getElementById('confSlider').value),
       reasoning:        document.getElementById('reasoning').value,
       ou25_pick:        document.getElementById('ou25_pick').value || null,
@@ -374,7 +392,7 @@ async function submitTip() {
     setTimeout(() => location.reload(), 1200);
   } else {
     showToast(data.error || 'Failed to submit — please try again', 'error');
-    btn.textContent = 'Submit My Tip 👑';
+    btn.textContent = 'Submit My Prediction 👑';
     btn.disabled = false;
   }
 }

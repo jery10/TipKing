@@ -357,16 +357,26 @@ def submit():
     if not match_open:
         return jsonify({"ok": False, "error": "Predictions are closed — this match has already started or finished."})
 
-    # Validate score matches result
-    result = data.get("result_pick")
+    # Validate — at least one market must be picked
+    result = data.get("result_pick") or None
+    ou25   = data.get("ou25_pick") or None
+    ou35   = data.get("ou35_pick") or None
+    ou45   = data.get("ou45_pick") or None
+    gr     = data.get("goals_range_pick") or None
+    btts   = data.get("btts_pick") or None
+    if not any([result, ou25, ou35, ou45, gr, btts]):
+        return jsonify({"ok": False, "error": "Please pick a market before submitting."})
+
     hg = int(data.get("home_goals", 0))
     ag = int(data.get("away_goals", 0))
-    if result == "H" and hg <= ag:
-        return jsonify({"ok": False, "error": "Score doesn't match Home Win"})
-    if result == "A" and ag <= hg:
-        return jsonify({"ok": False, "error": "Score doesn't match Away Win"})
-    if result == "D" and hg != ag:
-        return jsonify({"ok": False, "error": "Score doesn't match Draw"})
+    # Only validate score when result market was picked
+    if result:
+        if result == "H" and hg <= ag:
+            return jsonify({"ok": False, "error": "Score doesn't match Home Win"})
+        if result == "A" and ag <= hg:
+            return jsonify({"ok": False, "error": "Score doesn't match Away Win"})
+        if result == "D" and hg != ag:
+            return jsonify({"ok": False, "error": "Score doesn't match Draw"})
 
     ok = submit_tip(
         handle=handle,
@@ -379,11 +389,11 @@ def submit():
         away_goals=ag,
         confidence=data.get("confidence", 3),
         reasoning=data.get("reasoning", ""),
-        ou25_pick=data.get("ou25_pick") or None,
-        ou35_pick=data.get("ou35_pick") or None,
-        ou45_pick=data.get("ou45_pick") or None,
-        goals_range_pick=data.get("goals_range_pick") or None,
-        btts_pick=data.get("btts_pick") or None,
+        ou25_pick=ou25,
+        ou35_pick=ou35,
+        ou45_pick=ou45,
+        goals_range_pick=gr,
+        btts_pick=btts,
     )
     return jsonify({"ok": ok})
 
