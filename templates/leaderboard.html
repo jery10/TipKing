@@ -4,7 +4,7 @@
 <div class="container">
   <div class="page-header">
     <div class="page-title">🏆 Leaderboard</div>
-    <div class="page-sub">Top predictors ranked by accuracy. Minimum 3 settled predictions to qualify.</div>
+    <div class="page-sub">Top predictors ranked by accuracy</div>
   </div>
 
   <!-- Stats -->
@@ -15,7 +15,7 @@
     </div>
     <div class="stat-item">
       <span class="stat-num">{{ stats.tipsters }}</span>
-      <div class="stat-label">Tipsters</div>
+      <div class="stat-label">Predictors</div>
     </div>
     <div class="stat-item">
       <span class="stat-num">{{ stats.settled }}</span>
@@ -27,33 +27,130 @@
     </div>
   </div>
 
-  {% if not leaderboard %}
-  <div style="text-align:center;padding:60px;color:var(--muted)">
-    <div style="font-size:3rem;margin-bottom:16px">🏆</div>
-    <div style="font-size:1.1rem;font-weight:600">No settled predictions yet</div>
-    <div style="margin-top:8px">Check back after matches are played</div>
-    <a href="/fixtures" class="btn btn-gold" style="margin-top:20px;display:inline-flex">Make a Prediction →</a>
+  <!-- Tabs -->
+  <div style="display:flex;gap:4px;margin-bottom:24px;background:var(--bg2);border-radius:10px;padding:4px;border:1px solid var(--border)">
+    <button id="tab-overall" onclick="showTab('overall')"
+      style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;font-size:0.88rem;cursor:pointer;transition:all 0.15s;background:var(--primary);color:#fff">
+      🏅 Overall Rankings
+    </button>
+    <button id="tab-matches" onclick="showTab('matches')"
+      style="flex:1;padding:10px;border:none;border-radius:8px;font-weight:700;font-size:0.88rem;cursor:pointer;transition:all 0.15s;background:transparent;color:var(--muted)">
+      ⚽ By Match
+    </button>
   </div>
-  {% else %}
-  <div class="card">
-    {% for row in leaderboard %}
-    <div class="lb-row">
-      <div class="lb-rank {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
-        {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
+
+  <!-- Overall Rankings Tab -->
+  <div id="panel-overall">
+    {% if not leaderboard %}
+    <div style="text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:3rem;margin-bottom:16px">🏆</div>
+      <div style="font-size:1.1rem;font-weight:600">No settled predictions yet</div>
+      <div style="margin-top:8px">Check back after matches are played</div>
+      <a href="/fixtures" class="btn btn-gold" style="margin-top:20px;display:inline-flex">Make a Prediction →</a>
+    </div>
+    {% else %}
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:12px">Minimum 3 settled predictions to qualify</div>
+    <div class="card">
+      {% for row in leaderboard %}
+      <div class="lb-row">
+        <div class="lb-rank {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
+          {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
+        </div>
+        <div>
+          <div class="lb-handle">@{{ row.handle | username }}</div>
+          <div style="font-size:0.75rem;color:var(--muted)">{{ row.correct }}/{{ row.tips }} correct</div>
+        </div>
+        <div style="flex:1"></div>
+        <div class="lb-accuracy">{{ row.accuracy }}%</div>
       </div>
-      <div>
-        <div class="lb-handle">{{ row.handle | username }}</div>
-        <div style="font-size:0.75rem;color:var(--muted)">{{ row.correct }}/{{ row.tips }} correct</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- By Match Tab -->
+  <div id="panel-matches" style="display:none">
+    {% if not match_list %}
+    <div style="text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:3rem;margin-bottom:16px">⚽</div>
+      <div style="font-size:1.1rem;font-weight:600">No predictions recorded yet</div>
+      <a href="/fixtures" class="btn btn-gold" style="margin-top:20px;display:inline-flex">Make a Prediction →</a>
+    </div>
+    {% else %}
+    {% for match in match_list %}
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header" style="flex-wrap:wrap;gap:8px">
+        <span style="font-weight:800">{{ match.home }} vs {{ match.away }}</span>
+        <span style="color:var(--muted);font-size:0.8rem">{{ match.date }}</span>
+        <span style="color:var(--muted);font-size:0.8rem;margin-left:auto">{{ match.tips|length }} prediction{{ 's' if match.tips|length != 1 else '' }}</span>
       </div>
-      <div style="flex:1"></div>
-      <div class="lb-accuracy">{{ row.accuracy }}%</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);color:var(--muted);text-align:left">
+              <th style="padding:8px 12px">Predictor</th>
+              <th style="padding:8px 12px">Pick</th>
+              <th style="padding:8px 12px">Score</th>
+              <th style="padding:8px 12px">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tip in match.tips %}
+            {% set status = 'correct' if tip.is_correct == True else ('wrong' if tip.is_correct == False else 'pending') %}
+            <tr style="border-bottom:1px solid var(--border);{% if status == 'correct' %}background:rgba(0,200,81,0.04){% elif status == 'wrong' %}background:rgba(255,68,68,0.04){% endif %}">
+              <td style="padding:10px 12px;font-weight:700">
+                @{{ tip.handle | username }}
+                {% if tip.confidence >= 4 %}<span style="font-size:0.7rem;color:var(--gold)"> {{ '★' * tip.confidence }}</span>{% endif %}
+              </td>
+              <td style="padding:10px 12px">
+                <span class="pill pill-{{ tip.result_pick }}" style="font-size:0.72rem">
+                  {% if tip.result_pick == 'H' %}Home Win{% elif tip.result_pick == 'D' %}Draw{% else %}Away Win{% endif %}
+                </span>
+              </td>
+              <td style="padding:10px 12px;font-weight:700">{{ tip.home_goals }}–{{ tip.away_goals }}</td>
+              <td style="padding:10px 12px">
+                {% if status == 'pending' %}
+                  <span class="pill pill-pending" style="font-size:0.72rem">⏳ Pending</span>
+                {% elif status == 'correct' %}
+                  <span class="pill pill-correct" style="font-size:0.72rem">✅ Correct</span>
+                  {% if tip.actual_home is not none %}
+                  <span style="color:var(--muted);font-size:0.72rem;margin-left:4px">{{ tip.actual_home }}–{{ tip.actual_away }}</span>
+                  {% endif %}
+                {% else %}
+                  <span class="pill pill-wrong" style="font-size:0.72rem">❌ Wrong</span>
+                  {% if tip.actual_home is not none %}
+                  <span style="color:var(--muted);font-size:0.72rem;margin-left:4px">{{ tip.actual_home }}–{{ tip.actual_away }}</span>
+                  {% endif %}
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
     {% endfor %}
+    {% endif %}
   </div>
-  {% endif %}
 
   <div style="text-align:center;margin-top:32px">
     <a href="/fixtures" class="btn btn-gold">Make a Prediction 👑</a>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showTab(tab) {
+  const panels = ['overall', 'matches'];
+  panels.forEach(p => {
+    document.getElementById('panel-' + p).style.display = p === tab ? 'block' : 'none';
+    const btn = document.getElementById('tab-' + p);
+    btn.style.background = p === tab ? 'var(--primary)' : 'transparent';
+    btn.style.color = p === tab ? '#fff' : 'var(--muted)';
+  });
+}
+// Check URL hash on load
+if (window.location.hash === '#matches') showTab('matches');
+</script>
 {% endblock %}

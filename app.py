@@ -166,15 +166,17 @@ def match_page(home_team, away_team):
     already = has_tipped(get_handle(), home_team, away_team) if get_handle() else False
     my_tip = None
     if already and get_handle():
-        my_tips = get_my_tips(get_handle())
-        for t in my_tips:
+        my_tips_list = get_my_tips(get_handle())
+        for t in my_tips_list:
             if t["home_team"] == home_team and t["away_team"] == away_team:
                 my_tip = t
                 break
+    upcoming = get_upcoming(days=14)
+    is_open = any(f["home_team"] == home_team and f["away_team"] == away_team for f in upcoming)
     return render_template("match.html",
         home=home_team, away=away_team,
         tips=tips, consensus=con,
-        already=already, my_tip=my_tip,
+        already=already, my_tip=my_tip, is_open=is_open,
         handle=get_handle(), twitter=get_twitter())
 
 
@@ -184,6 +186,17 @@ def submit():
     handle = get_handle() or data.get("handle", "")
     if not handle:
         return jsonify({"ok": False, "error": "No handle set"})
+
+    # Reject if match has kicked off (no longer in upcoming fixtures)
+    home_team = data.get("home_team", "")
+    away_team = data.get("away_team", "")
+    upcoming = get_upcoming(days=14)
+    match_open = any(
+        f["home_team"] == home_team and f["away_team"] == away_team
+        for f in upcoming
+    )
+    if not match_open:
+        return jsonify({"ok": False, "error": "Predictions are closed — this match has already started or finished."})
 
     # Validate score matches result
     result = data.get("result_pick")
@@ -215,8 +228,39 @@ def submit():
 def leaderboard():
     lb = get_leaderboard()
     stats = get_stats()
+
+    # Build "By Match" view — group all tips by match with payout per predictor
+    all_tips = get_all_tips()
+    matches_map = {}
+    for t in all_tips:
+        key = f"{t['home_team']}|{t['away_team']}"
+        if key not in matches_map:
+            matches_map[key] = {
+                "home": t["home_team"],
+                "away": t["away_team"],
+                "date": t.get("match_date", ""),
+                "tips": [],
+            }
+        tip_data = dict(t)
+        if t.get("actual_home") is not None:
+            tip_data["payout"], _ = calculate_payout(t, t["actual_home"], t["actual_away"])
+        else:
+            tip_data["payout"] = None
+        matches_map[key]["tips"].append(tip_data)
+
+    def _tip_sort(t):
+        if t.get("is_correct") is True: return 0
+        if t.get("is_correct") is None: return 1
+        return 2
+
+    match_list = list(matches_map.values())
+    for m in match_list:
+        m["tips"].sort(key=_tip_sort)
+    match_list.sort(key=lambda m: m["date"] or "", reverse=True)
+
     return render_template("leaderboard.html",
-        leaderboard=lb, stats=stats, handle=get_handle(), twitter=get_twitter())
+        leaderboard=lb, stats=stats, match_list=match_list,
+        handle=get_handle(), twitter=get_twitter())
 
 
 @app.route("/my-tips", methods=["GET", "POST"])

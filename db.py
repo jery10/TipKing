@@ -33,7 +33,8 @@ def register_user(email, password, username, twitter=""):
         }).execute()
         return True, ""
     except Exception as e:
-        return False, f"Registration failed: {e}"
+        print(f"register_user error: {e}")
+        return False, "Something went wrong. Please try again."
 
 
 def login_user(email, password):
@@ -46,7 +47,8 @@ def login_user(email, password):
             return None, "Incorrect password."
         return user, ""
     except Exception as e:
-        return None, f"Login failed: {e}"
+        print(f"login_user error: {e}")
+        return None, "Something went wrong. Please try again."
 
 
 def submit_tip(handle, competition, home_team, away_team,

@@ -57,7 +57,16 @@
 
     <!-- Submit form -->
     <div>
-      {% if already and my_tip %}
+      {% if not is_open and not already %}
+      <div class="card">
+        <div class="card-header"><span style="font-weight:700">🔒 Predictions Closed</span></div>
+        <div class="card-body" style="text-align:center;padding:28px 20px">
+          <div style="font-size:2rem;margin-bottom:12px">⏱️</div>
+          <div style="font-weight:700;margin-bottom:8px">This match has already started or finished</div>
+          <div style="color:var(--muted);font-size:0.88rem">Predictions are locked once a match kicks off.</div>
+        </div>
+      </div>
+      {% elif already and my_tip %}
       <div class="card">
         <div class="card-header"><span style="font-weight:700">✅ Your Prediction</span></div>
         <div class="card-body">
