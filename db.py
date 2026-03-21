@@ -13,7 +13,7 @@ def get_db() -> Client:
     return _sb
 
 
-def register_user(email, password, username, twitter="", instagram="", tiktok=""):
+def register_user(email, password, username, twitter=""):
     try:
         email = email.lower().strip()
         username = username.lower().strip()
@@ -24,12 +24,10 @@ def register_user(email, password, username, twitter="", instagram="", tiktok=""
         if existing_user.data:
             return False, "That username is already taken."
         get_db().table("users").insert({
-            "email":     email,
+            "email":         email,
             "password_hash": generate_password_hash(password),
-            "username":  username,
-            "twitter":   twitter.lstrip("@").strip(),
-            "instagram": instagram.lstrip("@").strip(),
-            "tiktok":    tiktok.lstrip("@").strip(),
+            "username":      username,
+            "twitter":       twitter.lstrip("@").strip(),
         }).execute()
         return True, ""
     except Exception as e:
@@ -59,13 +57,10 @@ def get_user(username):
         return None
 
 
-def update_profile(username, twitter="", instagram="", tiktok="",
-                   bank_name="", bank_account="", new_password=None):
+def update_profile(username, twitter="", bank_name="", bank_account="", new_password=None):
     try:
         updates = {
             "twitter":      twitter.lstrip("@").strip(),
-            "instagram":    instagram.lstrip("@").strip(),
-            "tiktok":       tiktok.lstrip("@").strip(),
             "bank_name":    bank_name.strip(),
             "bank_account": bank_account.strip(),
         }

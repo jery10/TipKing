@@ -194,18 +194,16 @@ def register():
         return redirect("/")
     error = None
     if request.method == "POST":
-        email     = request.form.get("email", "").strip()
-        password  = request.form.get("password", "")
-        username  = request.form.get("username", "").strip()
-        twitter   = request.form.get("twitter", "").strip()
-        instagram = request.form.get("instagram", "").strip()
-        tiktok    = request.form.get("tiktok", "").strip()
+        email    = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
+        username = request.form.get("username", "").strip()
+        twitter  = request.form.get("twitter", "").strip()
         if len(password) < 6:
             error = "Password must be at least 6 characters."
         elif not username:
             error = "Username is required."
         else:
-            ok, error = register_user(email, password, username, twitter, instagram, tiktok)
+            ok, error = register_user(email, password, username, twitter)
             if ok:
                 session["handle"]  = username.lower().strip()
                 session["twitter"] = twitter.lstrip("@").strip()
@@ -254,8 +252,6 @@ def profile():
             ok, error = update_profile(
                 handle,
                 twitter=existing.get("twitter", ""),
-                instagram=existing.get("instagram", ""),
-                tiktok=existing.get("tiktok", ""),
                 bank_name=bank_name,
                 bank_account=bank_account,
             )
@@ -264,8 +260,6 @@ def profile():
                 user = get_user(handle)
         else:
             twitter      = request.form.get("twitter", "").strip()
-            instagram    = request.form.get("instagram", "").strip()
-            tiktok       = request.form.get("tiktok", "").strip()
             new_password = request.form.get("new_password", "").strip()
             confirm_password = request.form.get("confirm_password", "").strip()
             if new_password and new_password != confirm_password:
@@ -275,7 +269,7 @@ def profile():
             else:
                 existing = user or {}
                 ok, error = update_profile(
-                    handle, twitter, instagram, tiktok,
+                    handle, twitter,
                     bank_name=existing.get("bank_name", ""),
                     bank_account=existing.get("bank_account", ""),
                     new_password=new_password if new_password else None,
