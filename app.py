@@ -7,8 +7,10 @@ from db import (submit_tip, get_tips_for_match, has_tipped, get_my_tips,
                 mark_result, calculate_payout, register_user, login_user,
                 get_user, update_profile, vote_tip, get_live_tips)
 from fixtures import get_upcoming, COMPETITIONS
+import settler
 
 load_dotenv()
+settler.start_background()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "predict4free-secret-2024")
@@ -555,6 +557,18 @@ def admin_settle():
         total_payout += payout
         count += 1
     return jsonify({"ok": True, "settled": count, "total_payout": total_payout})
+
+
+@app.route("/admin/auto-settle", methods=["POST"])
+def admin_auto_settle():
+    if not session.get("admin"):
+        return jsonify({"ok": False})
+    try:
+        n = settler.auto_settle()
+        log = settler._last_run.get("log", [])
+        return jsonify({"ok": True, "settled": n, "log": log})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
 
 
 # ── Public API — read by BetPredict ──────────────────────────────────────────

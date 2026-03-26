@@ -216,10 +216,52 @@ def _goals_range(total):
     elif total <= 5: return "4-5"
     else:            return "6+"
 
+def get_pending_matches():
+    """Return unique (home_team, away_team) pairs that have unsettled tips."""
+    try:
+        res = get_db().table("tips").select("home_team,away_team")\
+            .is_("actual_home", "null").execute()
+        seen, matches = set(), []
+        for t in res.data or []:
+            key = (t["home_team"], t["away_team"])
+            if key not in seen:
+                seen.add(key)
+                matches.append({"home_team": t["home_team"], "away_team": t["away_team"]})
+        return matches
+    except Exception:
+        return []
+
+
+def settle_match(home_team, away_team, actual_home, actual_away):
+    """Settle all pending tips for a given match. Returns count settled."""
+    try:
+        res = get_db().table("tips").select("*")\
+            .eq("home_team", home_team).eq("away_team", away_team)\
+            .is_("actual_home", "null").execute()
+        if not res.data:
+            return 0
+        count = 0
+        for tip in res.data:
+            payout, _ = calculate_payout(tip, actual_home, actual_away)
+            is_correct = payout > 0
+            get_db().table("tips").update({
+                "is_correct":  is_correct,
+                "actual_home": actual_home,
+                "actual_away": actual_away,
+            }).eq("id", tip["id"]).execute()
+            count += 1
+        return count
+    except Exception as e:
+        print(f"settle_match error: {e}")
+        return 0
+
+
 def calculate_payout(tip, actual_home, actual_away):
     """Payout only for markets the user explicitly predicted."""
     actual_result = "H" if actual_home > actual_away else ("A" if actual_away > actual_home else "D")
-    ph, pa = int(tip["home_goals"]), int(tip["away_goals"])
+    # Use -1 sentinel so None goals never match a real score
+    ph = int(tip["home_goals"]) if tip.get("home_goals") is not None else -1
+    pa = int(tip["away_goals"]) if tip.get("away_goals") is not None else -1
     total_goals = actual_home + actual_away
     payout = 0
     breakdown = {}

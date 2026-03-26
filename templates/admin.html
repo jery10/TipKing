@@ -34,8 +34,15 @@
     <div class="stat-item"><span class="stat-num">{{ stats.correct }}</span><div class="stat-label">Correct</div></div>
   </div>
 
+  <!-- Auto-settle -->
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+    <div class="section-title" style="margin:0">🤖 Auto-Settle from API</div>
+    <button class="btn btn-gold btn-sm" onclick="autoSettle()" id="autoBtn">⚡ Run Now</button>
+  </div>
+  <div id="autoLog" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:0.82rem;margin-bottom:28px;color:var(--muted)"></div>
+
   <!-- Settle results -->
-  <div class="section-title" style="margin-bottom:16px">⚽ Settle Match Results</div>
+  <div class="section-title" style="margin-bottom:16px">⚽ Settle Match Results (Manual)</div>
   {% if not pending_matches %}
   <div class="card" style="padding:24px;color:var(--muted);text-align:center;margin-bottom:32px">No pending matches to settle.</div>
   {% else %}
@@ -132,6 +139,26 @@
 
 {% block scripts %}
 <script>
+async function autoSettle() {
+  const btn = document.getElementById('autoBtn');
+  btn.textContent = '⏳ Running…';
+  btn.disabled = true;
+  const res = await fetch('/admin/auto-settle', {method: 'POST', headers: {'Content-Type': 'application/json'}});
+  const data = await res.json();
+  btn.textContent = '⚡ Run Now';
+  btn.disabled = false;
+  const log = document.getElementById('autoLog');
+  log.style.display = 'block';
+  if (data.ok) {
+    log.innerHTML = data.settled
+      ? `<strong style="color:var(--green)">✅ Settled ${data.settled} tips</strong><br>` + data.log.map(l => `• ${l}`).join('<br>')
+      : '<span style="color:var(--muted)">No new results found — all pending matches may not have finished yet.</span>';
+    if (data.settled) setTimeout(() => location.reload(), 2000);
+  } else {
+    log.innerHTML = `<span style="color:var(--red)">Error: ${data.error}</span>`;
+  }
+}
+
 async function settle(idx, home, away) {
   const ah = parseInt(document.getElementById('ah_' + idx).value);
   const aa = parseInt(document.getElementById('aa_' + idx).value);
