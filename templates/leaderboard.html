@@ -30,18 +30,20 @@
     </div>
     {% else %}
     <div style="font-size:0.78rem;color:var(--muted);margin-bottom:12px">Minimum 3 settled predictions to qualify</div>
-    <div class="card">
+    <div class="card" style="padding:16px 20px;display:flex;flex-direction:column;gap:14px">
       {% for row in leaderboard %}
-      <div class="lb-row">
-        <div class="lb-rank {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
-          {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <div class="lb-rank {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}" style="min-width:28px">
+            {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
+          </div>
+          <div class="lb-handle" style="flex:1">@{{ row.handle | username }}</div>
+          <div style="font-size:0.8rem;color:var(--muted);white-space:nowrap">{{ row.correct }}/{{ row.tips }}</div>
+          <div class="lb-accuracy" style="min-width:44px;text-align:right">{{ row.accuracy }}%</div>
         </div>
-        <div>
-          <div class="lb-handle">@{{ row.handle | username }}</div>
-          <div style="font-size:0.75rem;color:var(--muted)">{{ row.correct }}/{{ row.tips }} correct</div>
+        <div style="height:7px;background:var(--bg2);border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:{{ row.accuracy }}%;background:{% if row.accuracy >= 70 %}var(--green){% elif row.accuracy >= 50 %}var(--primary){% else %}var(--red){% endif %};border-radius:4px;transition:width 0.6s ease"></div>
         </div>
-        <div style="flex:1"></div>
-        <div class="lb-accuracy">{{ row.accuracy }}%</div>
       </div>
       {% endfor %}
     </div>
